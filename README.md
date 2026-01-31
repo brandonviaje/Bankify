@@ -1,2 +1,3 @@
-# SQA
-software QA course proj
+# Bankify
+
+banking system
