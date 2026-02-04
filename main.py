@@ -2,11 +2,10 @@ import transactions
 
 if __name__ == "__main__":
     file_path = "bank_accounts.txt"
-    session_active = True
     accounts = {}
 
     # start event loop
-    while session_active:
+    while True:
         code = input("Enter transaction code: ").strip().lower()
 
         # handle login/logout
@@ -14,7 +13,7 @@ if __name__ == "__main__":
             accounts = transactions.handle_login(file_path)
         elif code == "logout":
             transactions.handle_logout(file_path)
-            session_active = False  # end session
+            break  # end session
         else:
             # must be logged in first
             if not transactions.session_active:
