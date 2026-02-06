@@ -1,8 +1,9 @@
-import transactions
+from account_reader import read_bank_accounts
+from sessions import Session
 
 if __name__ == "__main__":
     file_path = "bank_accounts.txt"
-    accounts = {}
+    session = Session()
 
     # start event loop
     while True:
@@ -10,13 +11,18 @@ if __name__ == "__main__":
 
         # handle login/logout
         if code == "login":
-            accounts = transactions.handle_login(file_path)
+            accounts = session.handle_login(file_path)
         elif code == "logout":
-            transactions.handle_logout(file_path)
+            # must be logged in first
+            if not session.session_active:
+                print("You must login first.")
+                continue
+
+            session.handle_logout(file_path)
             break  # end session
         else:
             # must be logged in first
-            if not transactions.session_active:
+            if not session.session_active:
                 print("You must login first.")
                 continue
 
