@@ -1,5 +1,6 @@
 from account_reader import read_bank_accounts
 from sessions import Session
+from transactions import transfer
 
 if __name__ == "__main__":
     file_path = "bank_accounts.txt"
@@ -32,7 +33,7 @@ if __name__ == "__main__":
             elif code == "deposit":
                 pass
             elif code == "transfer":
-                pass
+                transfer(accounts, session.session_type, session.current_user)
             elif code == "paybill":
                 pass
             elif code == "create":
