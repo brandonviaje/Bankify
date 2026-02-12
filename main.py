@@ -5,6 +5,8 @@ from transactions import transfer
 if __name__ == "__main__":
     file_path = "bank_accounts.txt"
     session = Session()
+    accounts = read_bank_accounts(file_path)
+
 
     # start event loop
     while True:
