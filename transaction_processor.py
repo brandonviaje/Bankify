@@ -103,6 +103,56 @@ class TransactionProcessor:
             return
 
     
+    def process_withdrawal(self, session_type, current_user):
+        #Constraints for withdrawing
+        max_withdraw = 500.00
+        
+        #Ask for account holder's name if logged in as admin
+        if session_type == "admin":
+            account_holder_name = input("Enter account holder name")
+        else:
+            account_holder_name = current_user
+        
+        #Ask for account number 
+        account_number = input("Enter account number")
+        if account_number not in self.accounts:
+            print("Account holder not found")
+            return 
+        
+        account = self.accounts[account_number]
+        
+        if account.name != account_holder_name:
+            print("Account is invalid")
+            return 
+        if not account.is_active():
+            print("Account is disabled. Cannot withdraw")
+            return 
+        
+        withdraw_amount = input("Enter withdrawal amount")
+        try:
+            amount = float(withdraw_amount)
+        except ValueError:
+            print("Invalid ammount")
+            return 
+        
+        #Users can only withdraw positive numbers
+        if amount <= 0:
+            print("Withdraw amount has to be positive")
+            return 
+        
+        #Standard users cannot withdraw more than 500
+        if session_type == "standard" and amount > max_withdraw:
+            print("Cannot exceed 500 withdrawal limit")
+            return 
+        
+        #User balance cannot drop below 0 
+        if account.balance - amount < 0:
+            print("Insufficient funds in account. Balance cannot go below $0.00")
+            return 
+        
+        #Withdrawals are recorded in transaction files
+        with open("transaction_file_log.txt", "a") as f:
+            f.write(f"Withdraw{account_number}{amount:.2f}{account.name}\n")
 
-
+        print(f"Withdraw accepted for account: {account_number}")
 

@@ -34,6 +34,9 @@ if __name__ == "__main__":
             elif code == "transfer":
                 tp.transfer(accounts, session.session_type, session.current_user)
 
+            elif code == "withdraw":
+                tp.process_withdrawal(accounts, session.session_type, session.current_user)
+
             else:
                 print("Invalid transaction code")
 
