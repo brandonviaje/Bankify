@@ -52,7 +52,7 @@ class TransactionProcessor:
 
         accounts = self.accounts
 
-        
+        #checks if user is admin, if so ask for account holder name to transfer from, otherwise use current user
         if session_type == "admin":
             account_holder_name = input("Enter account holder name: ").strip()
 
@@ -66,8 +66,8 @@ class TransactionProcessor:
         if account_number_from not in accounts:
             print("Source account not found.")
             return
-
         account_from = accounts[account_number_from]
+         # check to see if standard user and can only transfer from their own account, but can transfer to any account
         if session_type != "admin" and account_from.name != current_user:
             print("You can only transfer from your own account.")
             return
@@ -84,7 +84,7 @@ class TransactionProcessor:
 
 
         account_to = accounts[account_number_to]
-
+        #try to read and validate amount to transfer
         try:
             amount = float(input("Enter amount to transfer: "))
         except ValueError:
@@ -93,9 +93,8 @@ class TransactionProcessor:
         
 
         
-        
-        try:
 
+        try:
             if session_type != "admin":
                 if amount <= 0 or amount > 1000:
                     print("Amount must be positive and less than or equal to $1000.")
@@ -107,9 +106,12 @@ class TransactionProcessor:
             account_from.balance -= amount
             account_to.balance += amount
             print(f"Transferred {amount} from {account_number_from} to {account_number_to}.")
+
+            # record transaction in transaction log
             with open("transactions_file_log.txt", "a") as f:
                 f.write(f"Transferred ${amount} from {account_number_from} to {account_number_to}\n")
 
+            # update accounts file with new balances
             with open("bank_accounts.txt", "w") as f:
                 for acct_num in sorted(accounts.keys()):
                     f.write(format_account_line(accounts[acct_num]) + "\n")
@@ -121,6 +123,7 @@ class TransactionProcessor:
             print("Invalid amount. Please enter a numeric value.")
             return
 
+    #list of given companies to pay bills to, with account numbers and balances for each company
     companies = {
         "EC": {
             "name": "The Bright Light Electric Company",
@@ -144,6 +147,8 @@ class TransactionProcessor:
 
         accounts = self.accounts
 
+
+        #checks if user is admin, if so ask for account holder name to pay bill from, otherwise use current user
         if session_type == "admin":
             account_holder_name = input("Enter account holder name: ")
 
@@ -157,7 +162,7 @@ class TransactionProcessor:
             print("Source account not found.")
             return
 
-
+        #find account object for account number
         account_from = accounts[account_number_from]
 
         company_code = input("Enter company to transfer to: ").strip().upper()
@@ -169,7 +174,7 @@ class TransactionProcessor:
         company_data= companies[company_code]
 
 
-
+        #ask for amount to transfer and validate it is a number
         try:
             amount = float(input("Enter amount to transfer: "))
         except ValueError:
@@ -177,11 +182,12 @@ class TransactionProcessor:
             return
         
 
-
+        #check to see if user is standard and if so, validate they are transferring from their own account
         if session_type != "admin" and account_from.name != current_user:
             print("You can only transfer from your own account.")
             return
         
+        #amount must be positive and less than or equal to 1000, and account balance cannot go below 0 after transfer
         try:
             if amount <= 0 or amount > 1000:
                 print("Amount must be positive and less than or equal to $1000.")
@@ -195,9 +201,11 @@ class TransactionProcessor:
 
             print(f"Transferred {amount} from {account_number_from} to {company_data['name']}.")
 
+            # record transaction in transaction log
             with open("transactions_file_log.txt", "a") as f:
                 f.write(f"Bill paid ${amount} from {account_number_from} to {company_data['name']}\n")
 
+            # update accounts file with new balances
             with open("bank_accounts.txt", "w") as f:
                 for acct_num in sorted(accounts.keys()):
                     f.write(format_account_line(accounts[acct_num]) + "\n")
@@ -205,7 +213,7 @@ class TransactionProcessor:
                 f.write("END_OF_FILE\n")
 
 
-
+        #error handling for invalid amount input
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
             return
