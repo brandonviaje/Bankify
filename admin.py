@@ -86,3 +86,38 @@ class Admin:
         acct = self.accounts[acct_num]
         acct.status = "D"
         print(f"Disabled account {acct_num}.")
+
+    def process_change_plan(self, session_type):
+        #Only admins are able to change plans
+        if not self._require_admin(session_type):
+            return
+        
+        account_number = input("Enter account number")
+
+        #Check if the account exists
+        if account_number not in self.accounts:
+            print("Account not found")
+            return 
+        
+        account = self.accounts[account_number]
+
+        account_name = input("Enter account holder name")
+
+        #Check if the name matches account holder 
+        if account.name != account_name:
+            print("Account holder name does not match")
+            return 
+        
+        #Check current plan 
+        if account.plan != "SP":
+            print("Account is not a student plan")
+            return 
+        
+        #Update plan
+        account.plan = "NP"
+
+        #Log the transaction 
+        with open("transaction_file_log.txt", "a") as f:
+            f.write(f"Change plan {account_name}{account_name} NP\n")
+
+        print(f"User plan for account {account_number} changed to NP")
