@@ -32,5 +32,25 @@ class Session:
         print(f"Logged in as {self.current_user} ({self.session_type})")
         return accounts
 
-    def handle_logout(self,accounts):
-        pass
+    def handle_logout(self, accounts, file_path):
+
+        # Check if logged in
+        if not self.session_active:
+            print("No active session. Please login first.")
+            return
+
+        # Write the accounts back to the file
+        try:
+            with open(file_path, "a") as f:
+                for acc_number, acc in accounts.items():
+                    f.write(f"{acc_number},{acc.name},{acc.balance:.2f}\n")
+            print("Accounts saved successfully.")
+        except Exception as e:
+            print(f"Error saving accounts: {e}")
+
+        # End login session
+        self.session_active = False
+        self.session_type = None
+        self.current_user = None
+
+        print("Logged out successfully. No transactions can be processed until login.")
