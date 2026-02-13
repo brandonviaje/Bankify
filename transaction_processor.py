@@ -1,3 +1,7 @@
+from account_reader import read_bank_accounts
+from account_writer import format_account_line, write_bank_accounts
+
+
 class TransactionProcessor:
     def __init__(self, accounts):
         # shared accounts dict loaded from the accounts file
@@ -44,8 +48,102 @@ class TransactionProcessor:
         print(f"Deposit accepted for account {acct_num}. (Funds available next session)")
 
         
-    def transfer(accounts, session_type, current_user):
+    def transfer(self, session_type, current_user):
+
+        accounts = self.accounts
+
         
+        if session_type == "admin":
+            account_holder_name = input("Enter account holder name: ").strip()
+
+            matching_accounts = [acct_num for acct_num, acct in accounts.items()
+                         if acct.name.lower() == account_holder_name.lower()]
+            if not matching_accounts:
+                print("Account holder not found.")
+                return
+
+        account_number_from = input("Enter account number to transfer from: ").strip()
+        if account_number_from not in accounts:
+            print("Source account not found.")
+            return
+
+        account_from = accounts[account_number_from]
+        if session_type != "admin" and account_from.name != current_user:
+            print("You can only transfer from your own account.")
+            return
+
+        account_number_to = input("Enter account number to transfer to: ")
+
+        if account_number_to not in accounts:
+            print("Destination account not found.")
+            return
+        
+        if account_number_from == account_number_to:
+            print("Cannot transfer to the same account.")
+            return
+
+
+        account_to = accounts[account_number_to]
+
+        try:
+            amount = float(input("Enter amount to transfer: "))
+        except ValueError:
+            print("Invalid amount. Please enter a numeric value.")
+            return
+        
+
+        
+        
+        try:
+
+            if session_type != "admin":
+                if amount <= 0 or amount > 1000:
+                    print("Amount must be positive and less than or equal to $1000.")
+                    return
+            if account_from.balance - amount < 0 or account_to.balance + amount < 0:
+                print("Account balance cannot go below $0.")
+                return
+            
+            account_from.balance -= amount
+            account_to.balance += amount
+            print(f"Transferred {amount} from {account_number_from} to {account_number_to}.")
+            with open("transactions_file_log.txt", "a") as f:
+                f.write(f"Transferred ${amount} from {account_number_from} to {account_number_to}\n")
+
+            with open("bank_accounts.txt", "w") as f:
+                for acct_num in sorted(accounts.keys()):
+                    f.write(format_account_line(accounts[acct_num]) + "\n")
+
+                f.write("END_OF_FILE\n")
+
+
+        except ValueError:
+            print("Invalid amount. Please enter a numeric value.")
+            return
+
+    companies = {
+        "EC": {
+            "name": "The Bright Light Electric Company",
+            "account_number": "99901",
+            "balance": 1000000,
+        },
+        "CQ": {
+            "name": "Credit Card Company Q",
+            "account_number": "99902",
+            "balance": 30000,
+        },
+        "FI": {
+            "name": "Fast Internet, Inc.",
+            "account_number": "99903",
+            "balance": 40000,
+        }
+    }
+
+
+    def paybill(self, session_type, current_user, companies):
+
+        accounts = self.accounts
+
         if session_type == "admin":
             account_holder_name = input("Enter account holder name: ")
 
@@ -62,14 +160,14 @@ class TransactionProcessor:
 
         account_from = accounts[account_number_from]
 
-        account_number_to = input("Enter account number to transfer to: ")
+        company = input("Enter company to transfer to: ")
 
-        if account_number_to not in accounts:
-            print("Destination account not found.")
+        if company not in companies:
+            print("Company not found.")
             return
+        
+        company = companies[company]
 
-
-        account_to = accounts[account_number_to]
 
         try:
             amount = float(input("Enter amount to transfer: "))
@@ -77,6 +175,7 @@ class TransactionProcessor:
             print("Invalid amount. Please enter a numeric value.")
             return
         
+
 
         if session_type != "admin" and account_from.name != current_user:
             print("You can only transfer from your own account.")
@@ -86,23 +185,22 @@ class TransactionProcessor:
             if amount <= 0 or amount > 1000:
                 print("Amount must be positive and less than or equal to $1000.")
                 return
-            if account_from.balance - amount < 0 or account_to.balance + amount < 0:
+            if account_from.balance - amount < 0:
                 print("Account balance cannot go below $0.")
                 return
             
             account_from.balance -= amount
-            account_to.balance += amount
-            print(f"Transferred {amount} from {account_number_from} to {account_number_to}.")
+            companies[company][1] += amount
+            print(f"Transferred {amount} from {account_number_from} to {companies[company][0]}.")
             with open("transactions_file_log.txt", "a") as f:
-                f.write(f"Transferred ${amount} from {account_number_from} to {account_number_to}\n")
+                f.write(f"Bill paid ${amount} from {account_number_from} to {companies[company][0]}\n")
 
-            
+
 
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
             return
-
-    
+        
 
 
 

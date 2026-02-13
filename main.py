@@ -1,6 +1,5 @@
 from account_reader import read_bank_accounts
 from sessions import Session
-from transactions import transfer
 from transaction_processor import TransactionProcessor
 
 if __name__ == "__main__":
@@ -33,7 +32,10 @@ if __name__ == "__main__":
                 tp.process_deposit(session.session_type, session.current_user)
 
             elif code == "transfer":
-                transfer(accounts, session.session_type, session.current_user)
+                tp.transfer(session.session_type, session.current_user)
+
+            elif code == "paybill":
+                tp.paybill(session.session_type, session.current_user)
 
             else:
                 print("Invalid transaction code")
