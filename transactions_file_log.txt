@@ -1,3 +1,7 @@
 00001 to 00002 with $100.0
 DEPOSIT 00001 200.00 Brandon
 Transferred $20.0 from 00001 to 00002
+Transferred $69.0 from 00001 to 00003
+Bill paid $100.0 from 00001 to The Bright Light Electric Company
+Bill paid $500.0 from 00001 to The Bright Light Electric Company
+Bill paid $500.0 from 00001 to The Bright Light Electric Company

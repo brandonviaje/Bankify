@@ -32,17 +32,13 @@ if __name__ == "__main__":
                 tp.process_deposit(session.session_type, session.current_user)
 
             elif code == "transfer":
-<<<<<<< HEAD
-                tp.transfer(session.session_type, session.current_user)
+                tp.transfer( session.session_type, session.current_user)
+
+            elif code == "withdraw":
+                tp.process_withdrawal(session.session_type, session.current_user)
 
             elif code == "paybill":
                 tp.paybill(session.session_type, session.current_user)
-=======
-                tp.transfer(accounts, session.session_type, session.current_user)
-
-            elif code == "withdraw":
-                tp.process_withdrawal(accounts, session.session_type, session.current_user)
->>>>>>> 451f0b9f6b0d7379726e721535fdbbc19b1d7627
 
             else:
                 print("Invalid transaction code")

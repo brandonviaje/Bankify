@@ -140,7 +140,7 @@ class TransactionProcessor:
     }
 
 
-    def paybill(self, session_type, current_user, companies):
+    def paybill(self, session_type, current_user, companies=companies):
 
         accounts = self.accounts
 
@@ -160,13 +160,14 @@ class TransactionProcessor:
 
         account_from = accounts[account_number_from]
 
-        company = input("Enter company to transfer to: ")
+        company_code = input("Enter company to transfer to: ").strip().upper()
 
-        if company not in companies:
+        if company_code not in companies:
             print("Company not found.")
             return
-        
-        company = companies[company]
+
+        company_data= companies[company_code]
+
 
 
         try:
@@ -190,19 +191,24 @@ class TransactionProcessor:
                 return
             
             account_from.balance -= amount
-            companies[company][1] += amount
-            print(f"Transferred {amount} from {account_number_from} to {companies[company][0]}.")
+            company_data["balance"] += amount
+
+            print(f"Transferred {amount} from {account_number_from} to {company_data['name']}.")
+
             with open("transactions_file_log.txt", "a") as f:
-                f.write(f"Bill paid ${amount} from {account_number_from} to {companies[company][0]}\n")
+                f.write(f"Bill paid ${amount} from {account_number_from} to {company_data['name']}\n")
+
+            with open("bank_accounts.txt", "w") as f:
+                for acct_num in sorted(accounts.keys()):
+                    f.write(format_account_line(accounts[acct_num]) + "\n")
+
+                f.write("END_OF_FILE\n")
 
 
 
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
             return
-<<<<<<< HEAD
-        
-=======
 
     
     def process_withdrawal(self, session_type, current_user):
@@ -255,7 +261,6 @@ class TransactionProcessor:
         #Withdrawals are recorded in transaction files
         with open("transaction_file_log.txt", "a") as f:
             f.write(f"Withdraw{account_number}{amount:.2f}{account.name}\n")
->>>>>>> 451f0b9f6b0d7379726e721535fdbbc19b1d7627
 
         print(f"Withdraw accepted for account: {account_number}")
 
