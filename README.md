@@ -96,118 +96,118 @@ Tracks session type (standard/admin)
 
 ## Deposit
 
-Validates account exists and is active
+- Validates account exists and is active
 
-Standard users can only deposit into their own account
+- Standard users can only deposit into their own account
 
-Records transaction in the Daily Transaction File
+- Records transaction in the Daily Transaction File
 
-Funds are not available until next session (per specification)
+- Funds are not available until next session (per specification)
 
 ## Withdrawal
 
-Validates ownership and active status
+- Validates ownership and active status
 
-Standard users limited to $500 per transaction
+- Standard users limited to $500 per transaction
 
-Prevents negative balances
+- Prevents negative balances
 
-Records transaction in the Daily Transaction File
+- Records transaction in the Daily Transaction File
 
 ## Transfer
 
-Validates source and destination accounts
+- Validates source and destination accounts
 
-Standard users limited to $1000 per transaction
+- Standard users limited to $1000 per transaction
 
-Prevents negative balances
+- Prevents negative balances
 
-Records transaction
+- Records transaction
 
 ## Pay Bill
 
-Validates allowed company codes (EC, CQ, FI)
+- Validates allowed company codes (EC, CQ, FI)
 
-Prevents negative balances
+- Prevents negative balances
 
-Records transaction
+- Records transaction
 
 # 🔒 Privileged Features (Admin Only)
 ## Create
 
-Validates name (≤ 20 characters)
+- Validates name (≤ 20 characters)
 
-Validates balance (≤ 99999.99)
+- Validates balance (≤ 99999.99)
 
-Records create request
+- Records create request
 
-Account becomes available after back end processing
+- Account becomes available after back end processing
 
 ## Delete
 
-Validates account holder name and number match
+- Validates account holder name and number match
 
-Removes account from session memory
+- Removes account from session memory
 
-Records delete request
+- Records delete request
 
 ## Disable
 
-Changes account status from A → D in session
+- Changes account status from A → D in session
 
-Records disable request
+- Records disable request
 
 ## Change Plan
 
-Records changeplan request (SP → NP)
+- Records changeplan request (SP → NP)
 
-Applied during back end processing
+- Applied during back end processing
 
 # ⚠️ Not Fully Implemented Yet (Phase 2 Limitations)
 
 ## This version is a rapid first implementation. The following behaviors are not yet complete:
 
-❌ No full automated test validation
+- ❌ No full automated test validation
 
-❌ No full transaction file formatting (fixed-width records not finalized)
+- ❌ No full transaction file formatting (fixed-width records not finalized)
 
-❌ Back End processing not implemented
+- ❌ Back End processing not implemented
 
-❌ Create/delete/disable effects persist only after back end is built
+- ❌ Create/delete/disable effects persist only after back end is built
 
-❌ No full enforcement of all edge-case constraints
+- ❌ No full enforcement of all edge-case constraints
 
-❌ No full session-end transaction file finalization
+- ❌ No full session-end transaction file finalization
 
 In Phase 3, the Front End will be fully tested against the Phase 1 Requirements Tests.
 
 # 🧠 Design Intent
 ## Front End reads:
 
-Standard input
+- Standard input
 
-Current Bank Accounts file
+- Current Bank Accounts file
 
-Front End writes:
+- Front End writes:
 
-Standard output
+- Standard output
 
-Daily Transaction File
+- Daily Transaction File
 
-Back End (future phase) will:
+- Back End (future phase) will:
 
-Read the Daily Transaction File
+- Read the Daily Transaction File
 
-Apply changes
+- Apply changes
 
-Produce a new Current Bank Accounts file
+- Produce a new Current Bank Accounts file
 
 # 🛠 Development Notes
 
-Code is structured around a TransactionProcessor class
+- Code is structured around a TransactionProcessor class
 
-Privileged transactions require admin login
+- Privileged transactions require admin login
 
-Account validation is centralized through a shared account dictionary
+- Account validation is centralized through a shared account dictionary
 
-Daily transactions are appended to daily_transaction_file.txt
+- Daily transactions are appended to daily_transaction_file.txt
