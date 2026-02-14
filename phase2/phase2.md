@@ -1,5 +1,8 @@
 # Bankify
 
+## [UML DIAGRAM LINK](https://lucid.app/lucidchart/504815d4-9dbb-4ed5-8147-a5ecdd6851c6/edit?viewport_loc=2339%2C-1825%2C7884%2C3864%2CHWEp-vi-RSFO&invitationId=inv_39d803c2-cea5-4236-9e4f-3e683eb86697)
+
+
 🏦 **Banking System — Front End (Phase 2)**
 
 ## Overview
@@ -211,4 +214,5 @@ In Phase 3, the Front End will be fully tested against the Phase 1 Requirements 
 - Account validation is centralized through a shared account dictionary
 
 - Daily transactions are appended to daily_transaction_file.txt
+
 
