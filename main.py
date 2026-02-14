@@ -10,6 +10,11 @@ if __name__ == "__main__":
     tp = TransactionProcessor(accounts)  # create once, points to same dict
 
     while True:
+
+        if not session.session_active:
+            print("\nPlease login to continue.")
+
+        print("\nAvailable transaction codes: login, logout, deposit, transfer, withdraw, paybill, exit\n")
         code = input("Enter transaction code: ").strip().lower()
 
         if code == "login":

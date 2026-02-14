@@ -165,6 +165,11 @@ class TransactionProcessor:
         #find account object for account number
         account_from = accounts[account_number_from]
 
+        #check to see if user is standard and if so, validate they are transferring from their own account
+        if session_type != "admin" and account_from.name != current_user:
+            print("You can only transfer from your own account.")
+            return
+
         company_code = input("Enter company to transfer to: ").strip().upper()
 
         if company_code not in companies:
@@ -182,10 +187,7 @@ class TransactionProcessor:
             return
         
 
-        #check to see if user is standard and if so, validate they are transferring from their own account
-        if session_type != "admin" and account_from.name != current_user:
-            print("You can only transfer from your own account.")
-            return
+        
         
         #amount must be positive and less than or equal to 1000, and account balance cannot go below 0 after transfer
         try:
