@@ -269,8 +269,8 @@ class TransactionProcessor:
             return 
         
         #Withdrawals are recorded in transaction files
-        with open("transaction_file_log.txt", "a") as f:
-            f.write(f"Withdraw{account_number}{amount:.2f}{account.name}\n")
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"Withdraw{account_number} {amount:.2f} {account.name}\n")
 
         print(f"Withdraw accepted for account: {account_number}")
 

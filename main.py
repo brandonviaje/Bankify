@@ -1,6 +1,7 @@
 from account_reader import read_bank_accounts
 from sessions import Session
 from transaction_processor import TransactionProcessor
+from admin import Admin
 
 if __name__ == "__main__":
     file_path = "bank_accounts.txt"
@@ -8,6 +9,7 @@ if __name__ == "__main__":
     accounts = read_bank_accounts(file_path)
 
     tp = TransactionProcessor(accounts)  # create once, points to same dict
+    admin = Admin(accounts) 
 
     while True:
 
@@ -20,6 +22,7 @@ if __name__ == "__main__":
         if code == "login":
             accounts = session.handle_login(file_path)
             tp.accounts = accounts  # IMPORTANT: refresh tp to use newly loaded accounts
+            admin.accounts = accounts
 
         elif code == "logout":
             # check if user is logged in first
@@ -47,6 +50,9 @@ if __name__ == "__main__":
             elif code == "paybill":
                 tp.paybill(session.session_type, session.current_user)
 
+            elif code == "change plan":
+                admin.process_change_plan(session.session_type)
+                
             else:
                 print("Invalid transaction code")
 

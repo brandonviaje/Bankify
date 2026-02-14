@@ -33,7 +33,7 @@ def read_bank_accounts(file_path):
 
                 number, name, status, balance = match.groups()                # get account attributes
                 balance = float(balance)                                      # cast balance to float type
-                accounts[number] = BankAccount(number, name, status, balance) # set account number to bank account object
+                accounts[number] = BankAccount(number, name, status, balance, "SP") # set account number to bank account object
     except FileNotFoundError:
         print(f"File {file_path} not found")
     except Exception as e:
