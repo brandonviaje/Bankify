@@ -17,10 +17,12 @@ if __name__ == "__main__":
             tp.accounts = accounts  # IMPORTANT: refresh tp to use newly loaded accounts
 
         elif code == "logout":
+            # check if user is logged in first
             if not session.session_active:
                 print("You must login first.")
                 continue
-            session.handle_logout(accounts, "accounts_log.txt")
+
+            session.handle_logout(accounts, "accounts_log.txt") # handle logout
         elif code == "exit":
             break # end session
         else:

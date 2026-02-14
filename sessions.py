@@ -1,11 +1,13 @@
 from account_reader import read_bank_accounts
 
 class Session:
+    # Constructor
     def __init__(self):
         self.session_active = False   # session state
         self.session_type = None      # "standard" or "admin"
         self.current_user = None      # account holder name
 
+    # Handle User Login
     def handle_login(self,file_path):
 
         # check if an account is already logged in
@@ -32,6 +34,7 @@ class Session:
         print(f"Logged in as {self.current_user} ({self.session_type})")
         return accounts
 
+    # Handle User Logout
     def handle_logout(self, accounts, file_path):
 
         # Check if logged in
