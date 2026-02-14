@@ -8,3 +8,4 @@ Bill paid $500.0 from 00001 to The Bright Light Electric Company
 Transferred $100.0 from 00001 to 00002
 Bill paid $100.0 from 00001 to The Bright Light Electric Company
 Transferred $69.0 from 00001 to 00003
+Bill paid $50.0 from 00001 to Credit Card Company Q

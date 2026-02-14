@@ -201,7 +201,7 @@ class TransactionProcessor:
             account_from.balance -= amount
             company_data["balance"] += amount
 
-            print(f"Transferred {amount} from {account_number_from} to {company_data['name']}.")
+            print(f"\nTransferred {amount} from {account_number_from} to {company_data['name']}.")
 
             # record transaction in transaction log
             with open("transactions_file_log.txt", "a") as f:
