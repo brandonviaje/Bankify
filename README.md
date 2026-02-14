@@ -68,8 +68,8 @@ A = Active
 
 D = Disabled
 
-🔐 Session Types
-Standard Session
+# 🔐 Session Types
+## Standard Session
 
 Can only perform transactions on their own account
 
@@ -87,14 +87,14 @@ disable
 
 changeplan
 
-✅ Currently Implemented Features
-Login / Logout
+# ✅ Currently Implemented Features
+## Login / Logout
 
 Loads accounts from bank_accounts.txt
 
 Tracks session type (standard/admin)
 
-Deposit
+## Deposit
 
 Validates account exists and is active
 
@@ -104,7 +104,7 @@ Records transaction in the Daily Transaction File
 
 Funds are not available until next session (per specification)
 
-Withdrawal
+## Withdrawal
 
 Validates ownership and active status
 
@@ -114,7 +114,7 @@ Prevents negative balances
 
 Records transaction in the Daily Transaction File
 
-Transfer
+## Transfer
 
 Validates source and destination accounts
 
@@ -124,7 +124,7 @@ Prevents negative balances
 
 Records transaction
 
-Pay Bill
+## Pay Bill
 
 Validates allowed company codes (EC, CQ, FI)
 
@@ -132,8 +132,8 @@ Prevents negative balances
 
 Records transaction
 
-🔒 Privileged Features (Admin Only)
-Create
+# 🔒 Privileged Features (Admin Only)
+## Create
 
 Validates name (≤ 20 characters)
 
@@ -143,7 +143,7 @@ Records create request
 
 Account becomes available after back end processing
 
-Delete
+## Delete
 
 Validates account holder name and number match
 
@@ -151,21 +151,21 @@ Removes account from session memory
 
 Records delete request
 
-Disable
+## Disable
 
 Changes account status from A → D in session
 
 Records disable request
 
-Change Plan
+## Change Plan
 
 Records changeplan request (SP → NP)
 
 Applied during back end processing
 
-⚠️ Not Fully Implemented Yet (Phase 2 Limitations)
+# ⚠️ Not Fully Implemented Yet (Phase 2 Limitations)
 
-This version is a rapid first implementation. The following behaviors are not yet complete:
+## This version is a rapid first implementation. The following behaviors are not yet complete:
 
 ❌ No full automated test validation
 
@@ -181,8 +181,8 @@ This version is a rapid first implementation. The following behaviors are not ye
 
 In Phase 3, the Front End will be fully tested against the Phase 1 Requirements Tests.
 
-🧠 Design Intent
-Front End reads:
+# 🧠 Design Intent
+## Front End reads:
 
 Standard input
 
@@ -202,7 +202,7 @@ Apply changes
 
 Produce a new Current Bank Accounts file
 
-🛠 Development Notes
+# 🛠 Development Notes
 
 Code is structured around a TransactionProcessor class
 
