@@ -9,3 +9,10 @@ Transferred $100.0 from 00001 to 00002
 Bill paid $100.0 from 00001 to The Bright Light Electric Company
 Transferred $69.0 from 00001 to 00003
 Bill paid $50.0 from 00001 to Credit Card Company Q
+Transferred $40.0 from 00001 to 00002
+WITHDRAW 00001 30.00 Brandon
+Bill paid $20.0 from 00001 to The Bright Light Electric Company
+CREATE New User 1000.00
+DISABLE Brandon 00001
+DELETE Hello 00002
+CHANGEPLAN Brandon 00001
