@@ -2,6 +2,26 @@ from account_reader import read_bank_accounts
 from sessions import Session
 from transaction_processor import TransactionProcessor
 
+"""
+Bank ATM Front-End Main Program
+
+This serves as the main entry point for the Bank system.
+It initializes the bank account data, manages user sessions, and
+routes user-entered transaction codes to the appropriate handlers.
+
+The program:
+- Loads bank account data from a file
+- Manages login/logout sessions
+- Accepts transaction commands from the user
+- Delegates transaction processing to the TransactionProcessor
+- Enforces session rules (e.g., login required for transactions)
+- Supports regular user and admin operations
+
+Transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill,
+create, delete, disable, changeplan, exit
+"""
+
 if __name__ == "__main__":
     file_path = "bank_accounts.txt"
     session = Session()
