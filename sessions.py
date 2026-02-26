@@ -1,21 +1,4 @@
-"""
-File: sessions.py
-Author: Brandon 
-Description:
-    This class handles user login and logout functionality for the banking system
-
-    The sessions class:
-        - Tracks if a session is active
-        - Stores the session type 
-        - Stores currently logged in user
-        - Handles user login validation 
-        - Loads account data from file upon login 
-        - Saves account data back to file upon logout 
-        - Prevents transactions when there is no active session 
-    
-    This file creates a session object to manage the authentication and session control for banking transactions
-"""
-from account_reader import read_bank_accounts
+from account_writer import write_bank_accounts
 
 class Session:
     # Constructor
@@ -25,7 +8,7 @@ class Session:
         self.current_user = None      # account holder name
 
     # Handle User Login
-    def handle_login(self,file_path):
+    def handle_login(self,accounts):
 
         # check if an account is already logged in
         if self.session_active:
@@ -46,27 +29,27 @@ class Session:
         else:
             self.current_user = "ADMIN"
 
-        accounts = read_bank_accounts(file_path)  # read bank acounts file
         self.session_active = True
         print(f"Logged in as {self.current_user} ({self.session_type})")
         return accounts
 
     # Handle User Logout
-    def handle_logout(self, accounts, file_path):
+    def handle_logout(self, accounts, output_file_path):
 
         # Check if logged in
         if not self.session_active:
             print("No active session. Please login first.")
             return
 
-        # Write the accounts back to the file
+        # write the accounts back to the file
+        user_formatted = self.current_user if self.current_user else ""
+
         try:
-            with open(file_path, "a") as f:
-                for acc_number, acc in accounts.items():
-                    f.write(f"{acc_number},{acc.name},{acc.balance:.2f}\n")
-            print("Accounts saved successfully.")
+            with open(output_file_path, "a") as f:
+                f.write(f"00 {user_formatted:20} 00000 00000.00 \n")
+            print(f"End of session recorded in {output_file_path}.")
         except Exception as e:
-            print(f"Error saving accounts: {e}")
+            print(f"Error saving transaction file: {e}")
 
         # End login session
         self.session_active = False

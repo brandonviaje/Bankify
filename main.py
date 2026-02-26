@@ -1,3 +1,4 @@
+import sys
 from account_reader import read_bank_accounts
 from sessions import Session
 from transaction_processor import TransactionProcessor
@@ -23,11 +24,16 @@ create, delete, disable, changeplan, exit
 """
 
 if __name__ == "__main__":
-    file_path = "bank_accounts.txt"
-    session = Session()
-    accounts = read_bank_accounts(file_path)
+    if len(sys.argv) != 3:
+        print("Usage: python main.py <current_accounts_file> <transaction_output_file>")
+        sys.exit(1)
 
-    tp = TransactionProcessor(accounts)
+    accounts_file = sys.argv[1]
+    transaction_file = sys.argv[2]
+    session = Session()
+
+    accounts = read_bank_accounts(accounts_file)
+    tp = TransactionProcessor(accounts, transaction_file)
 
     while True:
         if not session.session_active:
@@ -35,11 +41,14 @@ if __name__ == "__main__":
 
         print("\nAvailable transaction codes:")
         print("login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit\n")
-        code = input("Enter transaction code: ").strip().lower()
+
+        try:
+            code = input("Enter transaction code: ").strip().lower()
+        except EOFError:
+            break 
 
         if code == "login":
-            accounts = session.handle_login(file_path)
-
+            session.handle_login(accounts)
             # handle_login returns a new dict, so refresh tp
             tp.accounts = accounts
 
@@ -48,9 +57,9 @@ if __name__ == "__main__":
                 print("You must login first.")
                 continue
 
-            session.handle_logout(accounts, "accounts_log.txt")
+            session.handle_logout(accounts, transaction_file)
             # if logout should end the session entirely, uncomment:
-            # break
+            break
 
         elif code == "exit":
             break
