@@ -1,11 +1,10 @@
-00001 to 00002 with $100.0
-DEPOSIT 00001 200.00 Brandon
-Transferred $20.0 from 00001 to 00002
-Transferred $69.0 from 00001 to 00003
-Bill paid $100.0 from 00001 to The Bright Light Electric Company
-Bill paid $500.0 from 00001 to The Bright Light Electric Company
-Bill paid $500.0 from 00001 to The Bright Light Electric Company
-Transferred $100.0 from 00001 to 00002
-Bill paid $100.0 from 00001 to The Bright Light Electric Company
-Transferred $69.0 from 00001 to 00003
-Bill paid $50.0 from 00001 to Credit Card Company Q
+TRANSFER Brandon              00001 00010.00 
+TRANSFER Brandon              00001 00050.00 
+PAYBILL Brandon              00001 00005.00 EC 
+PAYBILL Brandon              00001 00015.00 EC 
+DEPOSIT Brandon              00001 00020.00 
+DEPOSIT Brandon              00001 00100.00 
+CREATE NewUser              00000 00500.00 
+DELETE Brandon              00001 00000.00 
+DISABLE Brandon              00001 00000.00 
+CHANGEPLAN Brandon              00001 00000.00 
