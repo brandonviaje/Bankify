@@ -1,3 +1,21 @@
+"""
+File: admin.py
+Author: Brandon 
+Description:
+    This class handles administrator-only account properties within the banking system
+
+    The admin class:
+        - Validates admin session permission
+        - Creates new bank accounts 
+        - Deletes existing accounts if balance is 0 
+        - Disables accounts 
+        - Changes account plans 
+        - Updates the shared accounts dictionary 
+    
+    The admin actions directly modify the in-memory accounts dictionary and may log certain changes 
+    to the transaction file
+"""
+
 # admin.py
 from accounts import BankAccount
 
@@ -8,6 +26,10 @@ class Admin:
         self.accounts = accounts
 
     def _require_admin(self, session_type: str) -> bool:
+        """
+        Ensures the current session has admin privileges
+        """
+
         # small helper to block admin-only actions in standard mode.
         if session_type != "admin":
             print("Admin transaction. You must be logged in as admin.")
@@ -15,6 +37,24 @@ class Admin:
         return True
 
     def process_create(self, session_type: str) -> None:
+        """
+        Creates a new bank account (admin only)
+
+        This method:
+            - Verifies the current session has admin privileges.
+            - Prompts for a new 5-digit account number and ensures it is unique.
+            - Prompts for a non-empty account holder name.
+            - Prompts for a non-negative integer initial balance.
+            - Creates a new active ("A") BankAccount object.
+            - Adds the account to the shared accounts dictionary.
+
+        Parameters:
+            session_type (str): The type of session ("admin" or "standard").
+
+        Returns:
+            None
+        """
+
         # only admins can create accounts.
         if not self._require_admin(session_type):
             return
@@ -49,6 +89,22 @@ class Admin:
         print(f"Created account {acct_num} for {name} with balance {balance}.")
 
     def process_delete(self, session_type: str) -> None:
+        """
+        Deletes an existing bank account (admin only).
+
+        This method:  
+            - Verifies the current session has admin privileges.
+            - Prompts for the account number to delete.
+            - Confirms the account exists.
+            - Ensures the account balance is zero before deletion.
+            - Removes the account from the shared accounts dictionary.
+
+        Parameters:
+            session_type (str): The type of session ("admin" or "standard").
+
+        Returns:
+            None
+        """
         # only admins can delete accounts.
         if not self._require_admin(session_type):
             return
@@ -72,6 +128,23 @@ class Admin:
         print(f"Deleted account {acct_num}.")
 
     def process_disable(self, session_type: str) -> None:
+        """
+        Deletes an existing bank account (admin only).
+
+        This method:
+            - Verifies the current session has admin privileges.
+            - Prompts for the account number to delete.
+            - Confirms the account exists.
+            - Ensures the account balance is zero before deletion.
+            - Removes the account from the shared accounts dictionary.
+
+        Parameters:
+            session_type (str): The type of session ("admin" or "standard").
+
+        Returns:
+            None
+        """
+
         # only admins can disable accounts.
         if not self._require_admin(session_type):
             return
@@ -88,6 +161,25 @@ class Admin:
         print(f"Disabled account {acct_num}.")
 
     def process_change_plan(self, session_type):
+        """
+        Changes an account's plan from Student Plan (SP) to
+        Non-Student Plan (NP) (admin-only operation).
+
+        This method:
+            - Verifies the current session has admin privileges.
+            - Prompts for the account number and confirms it exists.
+            - Prompts for the account holder name and verifies it matches.
+            - Ensures the current plan is "SP".
+            - Updates the account plan to "NP".
+            - Logs the plan change in "transactions_file_log.txt".
+
+        Parameters:
+            session_type (str): The type of session ("admin" or "standard").
+
+        Returns:
+            None
+
+        """
         #Only admins are able to change plans
         if not self._require_admin(session_type):
             return
