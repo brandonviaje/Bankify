@@ -1,3 +1,15 @@
+"""
+File: account_writer.py
+Author: Brandon 
+Description:
+    This class handles writing bank account data to a file
+
+    The account_writer class:
+        - A function to format bankaccount object into a padded string representation
+        - A function to write all bank accounts to a file, sorted by account number
+    
+    The class appends "END_OF_FILE" to indicate completion
+"""
 # account_writer.py
 from accounts import BankAccount
 

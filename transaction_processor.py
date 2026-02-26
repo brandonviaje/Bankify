@@ -1,6 +1,20 @@
+"""
+File: Transaction_processor.py
+Author: Jason, Richard, Moksh 
+Description:
+    This class handles the functionalities of banking transactions including:
+
+        -process_withdrawal()
+        -process_deposit()
+        -process_changeplain()
+        -transfer()
+        -paybill()
+    
+    Each method validates the user session and executes corresponding transaction type and
+    outputs are written to a transaction text file.
+"""
 from account_reader import read_bank_accounts
 from account_writer import format_account_line, write_bank_accounts
-
 
 class TransactionProcessor:
     def __init__(self, accounts):
@@ -31,6 +45,23 @@ class TransactionProcessor:
     # deposit
 
     def process_deposit(self, session_type: str, current_user: str) -> None:
+        """
+        Process a deposit transaction for a specified account 
+
+        This method: 
+            - Prompts the user to enter a 5-digit account number 
+            - Verifies that the account exists and is active 
+            - Ensures standard users can only deposit into their own accounts 
+            - Prompts and validates deposit amount 
+            - Records the transaction in a transaction log file 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+            current_user (str): The username of currently logged-in user
+
+        Returns:
+            None
+        """
         # ask which account the user wants to deposit into
         acct_num = input("Enter account number to deposit into (5 digits): ").strip()
 
@@ -73,6 +104,21 @@ class TransactionProcessor:
     # privileged: create
  
     def process_create(self, session_type: str) -> None:
+        """
+        Process an account creation transaction for a specified account 
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for an account holder name 
+           - Prompts and validates an initial balance
+           - Records the account creation in transaction log file 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+
+        Returns:
+            None
+        """
         if not self._require_admin(session_type):
             return
 
@@ -111,6 +157,24 @@ class TransactionProcessor:
     # privileged: delete
    
     def process_delete(self, session_type: str) -> None:
+        """
+        Process an account deletion for a specified account 
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for an account holder name 
+           - Prompts and validates for an account number name 
+           - Prompts and validates an initial balance
+           - Records the account deletion in transaction log file 
+           - Removes the account from self.accounts for the current session 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+
+        Returns:
+            None
+        """
+
         if not self._require_admin(session_type):
             return
 
@@ -144,6 +208,23 @@ class TransactionProcessor:
     # privileged: disable
 
     def process_disable(self, session_type: str) -> None:
+        """
+        Process an account disable for an existing account 
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for an account holder name 
+           - Prompts and validates for an account number name 
+           - Records the account disable in transaction log file 
+           - Chagnges the account to disabled for the current session 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+
+        Returns:
+            None
+        """
+        
         if not self._require_admin(session_type):
             return
 
@@ -177,6 +258,22 @@ class TransactionProcessor:
     # privileged: changeplan
 
     def process_changeplan(self, session_type: str) -> None:
+        """
+        Process an account plan change for an existing account 
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for an account holder name 
+           - Prompts and validates for an account number name 
+           - Records the account plan change in transaction log file 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+
+        Returns:
+            None
+        """
+
         if not self._require_admin(session_type):
             return
 
@@ -207,6 +304,27 @@ class TransactionProcessor:
     # transfer
 
     def transfer(self, session_type, current_user):
+        """
+        Process a transfer funds between two accounts
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for source account
+           - Ensure standard users can only transder from their own account
+           - Prompts and validates for an account number name 
+           - Prompts for and validate the transfer amount:
+                *Standard users: amount must be between > 0 and <= 1000
+                *All users: cannot drop below 0
+           - Records the fund transfer in transaction log file 
+           - Writes updated balance in bank account log file 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+            current_user (str): The username of currently logged-in user
+
+        Returns:
+            None
+        """
 
         accounts = self.accounts
 
@@ -299,6 +417,28 @@ class TransactionProcessor:
     }
 
     def paybill(self, session_type, current_user, companies=companies):
+        """
+        Process a paybill from a user account to a predefined company
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for an account number
+           - Ensure standard users can only paybill from their own account
+           - Prompts and validates for company code from predefined list
+           - Prompts for and validate the payment amount:
+                *Standard users: amount must be between > 0 and <= 1000
+                *All users: cannot drop below 0
+           - Deducts the amount from user account and add to selected company's balance
+           - Records the paubill in transaction log file 
+           - Writes updated balance in bank account log file 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+            current_user (str): The username of currently logged-in user
+
+        Returns:
+            None
+        """
 
         accounts = self.accounts
 
@@ -363,6 +503,26 @@ class TransactionProcessor:
             return
 
     def process_withdrawal(self, session_type, current_user):
+        """
+        Process an account withdrawal for an existing account 
+
+        This method: 
+           - Verifies the current session had admin privileges
+           - Prompts for an account holder name 
+           - Prompts and validates for an account number 
+           - Verifies the active account
+           - Prompts for withdrawal amount:
+                *$500 limit for standard users
+                *Account balance cannot drop below 0  
+           - Records the account withdrawal in transaction log file 
+
+        Parameters: 
+            session_type (str): The type of session - "admin" or "standard"
+            current_user (str): The username of currently logged-in user
+
+        Returns:
+            None
+        """
         # constraints for withdrawing
         max_withdraw = 500.00
 

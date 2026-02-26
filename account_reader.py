@@ -1,3 +1,18 @@
+"""
+File: account_reader.py
+Author: Brandon 
+Description:
+    This class reads bank account data from a file and converts each valid line into a bankaccount object
+
+    The account_reader class:
+        - Uses regular expression to validate file format
+        - Extracts account number, name, status, and balance
+        - Creates object for valid entries and skips improper formated lines
+        - Stops reading at "END_OF_FILE"
+    
+    The file returns a dictionary of accounts keyed by account number
+"""
+
 from accounts import BankAccount
 import re
 
@@ -14,6 +29,17 @@ _           : underscore padding before balance
 account_pattern = r"(\d{5})_(.+?)_+([AD])_(\d{8})"
 
 def read_bank_accounts(file_path):
+    """
+    Reads account data from the specified file and returns a 
+    dictionary of bankaccount objects keyed by account number 
+
+    Parameters:
+        file_path (str): Path to the bank account files
+
+    Returns:
+        dict[str, BankAccount]: Dictionary of parsed accounts
+    """
+
     accounts = {}
     try:
         # open file

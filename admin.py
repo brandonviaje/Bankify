@@ -118,6 +118,6 @@ class Admin:
 
         #Log the transaction 
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"Changed plan: Account name:{account_name} Account number:{account_number} to NP\n")
+            f.write(f"Changed plan: Account name:{account_name}, Account number:{account_number} to NP\n")
 
         print(f"User plan for account {account_number} changed to NP")
