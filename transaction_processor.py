@@ -17,10 +17,10 @@ from account_reader import read_bank_accounts
 from account_writer import format_account_line, write_bank_accounts
 
 class TransactionProcessor:
-    def __init__(self, accounts):
+    def __init__(self, accounts, output_file):
         # shared accounts dict loaded from the accounts file
         self.accounts = accounts
-
+        self.output_file = output_file
 
     # helpers
 
@@ -96,7 +96,7 @@ class TransactionProcessor:
 
         # deposits get recorded, but aren't available until next session (FE_22)
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"DEPOSIT {acct_num} {amount:.2f} {acct.name}\n")
+            f.write(f"DEPOSIT {acct.name:20} {acct_num:05} {amount:08.2f} \n")
 
         print(f"Deposit accepted for account {acct_num}. (Funds available next session)")
 
@@ -149,10 +149,9 @@ class TransactionProcessor:
         # front end records create, but doesnt add it to self.accounts in this session
         # account number uniqueness and creation happens when back end processes file
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"CREATE {name} {balance:.2f}\n")
+            f.write(f"CREATE {name:20} 00000 {balance:08.2f} \n")
 
         print("Create accepted. (New account available next session)")
-
   
     # privileged: delete
    
@@ -174,7 +173,6 @@ class TransactionProcessor:
         Returns:
             None
         """
-
         if not self._require_admin(session_type):
             return
 
@@ -197,13 +195,12 @@ class TransactionProcessor:
 
         # record transaction first
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"DELETE {holder_name} {acct_num}\n")
+            f.write(f"DELETE {holder_name:20} {acct_num:05} 00000.00 \n")
 
         # no further transactions should be accepted on a deleted account in this session
         del self.accounts[acct_num]
 
         print(f"Delete accepted. Account {acct_num} removed for this session.")
-
 
     # privileged: disable
 
@@ -224,7 +221,6 @@ class TransactionProcessor:
         Returns:
             None
         """
-        
         if not self._require_admin(session_type):
             return
 
@@ -250,11 +246,10 @@ class TransactionProcessor:
 
         # record transaction
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"DISABLE {holder_name} {acct_num}\n")
+            f.write(f"DISABLE {holder_name:20} {acct_num:05} 00000.00 \n")
 
         print(f"Disable accepted. Account {acct_num} is now disabled for this session.")
 
-  
     # privileged: changeplan
 
     def process_changeplan(self, session_type: str) -> None:
@@ -273,7 +268,6 @@ class TransactionProcessor:
         Returns:
             None
         """
-
         if not self._require_admin(session_type):
             return
 
@@ -296,10 +290,9 @@ class TransactionProcessor:
 
         # your BankAccount doesn't store plan yet, so just record it for the back end
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"CHANGEPLAN {holder_name} {acct_num}\n")
+            f.write(f"CHANGEPLAN {holder_name:20} {acct_num:05} 00000.00 \n")
 
         print(f"Changeplan accepted for account {acct_num} (SP -> NP).")
-
 
     # transfer
 
@@ -325,7 +318,6 @@ class TransactionProcessor:
         Returns:
             None
         """
-
         accounts = self.accounts
 
         # checks if user is admin, if so ask for account holder name to transfer from
@@ -385,13 +377,7 @@ class TransactionProcessor:
 
             # record transaction in transaction log
             with open("transactions_file_log.txt", "a") as f:
-                f.write(f"Transferred ${amount} from {account_number_from} to {account_number_to}\n")
-
-            # update accounts file with new balances
-            with open("bank_accounts.txt", "w") as f:
-                for acct_num in sorted(accounts.keys()):
-                    f.write(format_account_line(accounts[acct_num]) + "\n")
-                f.write("END_OF_FILE\n")
+                f.write(f"TRANSFER {account_from.name:20} {account_number_from:05} {amount:08.2f} \n")
 
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
@@ -491,12 +477,7 @@ class TransactionProcessor:
             print(f"\nTransferred {amount} from {account_number_from} to {company_data['name']}.")
 
             with open("transactions_file_log.txt", "a") as f:
-                f.write(f"Bill paid ${amount} from {account_number_from} to {company_data['name']}\n")
-
-            with open("bank_accounts.txt", "w") as f:
-                for acct_num in sorted(accounts.keys()):
-                    f.write(format_account_line(accounts[acct_num]) + "\n")
-                f.write("END_OF_FILE\n")
+                f.write(f"PAYBILL {account_from.name:20} {account_number_from:05} {amount:08.2f} {company_code:2} \n")
 
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
@@ -567,7 +548,7 @@ class TransactionProcessor:
             return
 
         # withdrawals are recorded in transaction files
-        with open("transactions_file_log.txt", "a") as f:
-            f.write(f"WITHDRAW {account_number} {amount:.2f} {account.name}\n")
+        with open(self.output_file, "a") as f:
+            f.write(f"WITHDRAW {account.name:20} {account_number:05} {amount:08.2f} \n")
 
         print(f"Withdraw accepted for account: {account_number}")
