@@ -1,0 +1,7 @@
+login
+admin
+create
+NewUser
+-100.00
+logout
+exit

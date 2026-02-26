@@ -1,0 +1,7 @@
+login
+admin
+changeplan
+Brandon
+00001
+logout
+exit

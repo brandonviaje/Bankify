@@ -1,0 +1,6 @@
+login
+standard
+Brandon
+changeplan
+logout
+exit

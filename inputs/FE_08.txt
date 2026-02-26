@@ -1,0 +1,8 @@
+login
+standard
+Brandon
+withdrawal
+00001
+500.01
+logout
+exit

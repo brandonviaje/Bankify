@@ -1,0 +1,11 @@
+login
+standard
+Brandon
+deposit
+00001
+100.00
+withdrawal
+00001
+50.00
+logout
+exit

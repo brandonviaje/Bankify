@@ -1,0 +1,7 @@
+login
+admin
+delete
+Brandon
+99999
+logout
+exit

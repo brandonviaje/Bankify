@@ -1,0 +1,9 @@
+login
+standard
+Brandon
+paybill
+00001
+EC
+2000.01
+logout
+exit

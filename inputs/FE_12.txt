@@ -1,0 +1,9 @@
+login
+standard
+Brandon
+transfer
+00001
+00002
+1000.01
+logout
+exit

@@ -1,0 +1,10 @@
+login
+admin
+delete
+Brandon
+00001
+withdrawal
+00001
+5.00
+logout
+exit

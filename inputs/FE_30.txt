@@ -1,0 +1,7 @@
+login
+admin
+disable
+WrongName
+00001
+logout
+exit

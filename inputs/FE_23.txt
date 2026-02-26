@@ -1,0 +1,7 @@
+login
+admin
+create
+NewUser
+500.00
+logout
+exit
