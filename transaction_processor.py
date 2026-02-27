@@ -21,14 +21,14 @@ Description:
 # -------------------------
 
 def fmt_name(name: str) -> str:
-    return f"{name[:20]:20}"  # left-justified, 20 chars
+    return f"{name[:20]:20}"  # left justified 20 chars
 
 def fmt_acct(acct_num: str) -> str:
     digits = "".join(ch for ch in acct_num if ch.isdigit())
     return f"{int(digits):05d}"
 
 def fmt_amount(amount: float) -> str:
-    return f"{amount:08.2f}"  # zero-filled, 8 chars including decimal
+    return f"{amount:08.2f}"  # zero-filled 8 chars including decimal
 
 def fmt_misc(misc: str, width: int = 2) -> str:
     return f"{misc[:width]:{width}}"
@@ -51,7 +51,7 @@ class TransactionProcessor:
         self.accounts = accounts
         self.output_file = output_file
 
-        # track standard withdrawals across a single session (resets on login in main.py)
+        # track standard withdrawals across a single session resets on login in main.py
         self.standard_withdraw_total = 0.0
 
     # --------------------
@@ -74,7 +74,7 @@ class TransactionProcessor:
     # --------------------
 
     def process_deposit(self, session_type: str, current_user: str) -> None:
-        # admin must specify which customer's account they are acting on
+        # admin must specify which customers account they are acting on
         admin_holder = None
         if session_type == "admin":
             admin_holder = input("Enter account holder name: ").strip()
@@ -91,7 +91,7 @@ class TransactionProcessor:
 
         acct = self.accounts[acct_num]
 
-        # can't deposit into disabled accounts (usually expected; keep if your specs allow it)
+        # cant deposit into disabled accounts 
         if not acct.is_active():
             print("Account is disabled. Cannot deposit.")
             return
@@ -119,7 +119,7 @@ class TransactionProcessor:
             print("Amount must be positive.")
             return
 
-        # IMPORTANT: deposit is recorded only (NOT applied this session)
+        # deposit is recorded only NOT applied this session
         with open(self.output_file, "a") as f:
             write_txn_line(self.output_file, "04", acct.name, acct_num, amount)
 
@@ -158,8 +158,8 @@ class TransactionProcessor:
             print("Balance can be at most 99999.99.")
             return
 
-        # IMPORTANT: Do NOT create the account in self.accounts during this session.
-        # Just record it so the Back End can assign a unique account number later.
+        #Do not create the account in self.accounts during this session.
+        # Just record it so the Back End can assign a unique account number later
         with open(self.output_file, "a") as f:
             write_txn_line(self.output_file, "05", name, "00000", balance)
 
@@ -225,7 +225,7 @@ class TransactionProcessor:
             print("Account number does not match the specified account holder.")
             return
 
-        acct.status = "D"
+        acct.status = "D" # Disable status
 
         with open(self.output_file, "a") as f:
             write_txn_line(self.output_file, "07", holder_name, acct_num, 0.0)
@@ -318,13 +318,13 @@ class TransactionProcessor:
             print("Destination account not found.")
             return
 
-        if from_acct_num == to_acct_num:
+        if from_acct_num == to_acct_num: # prevent transferring to the same account
             print("Cannot transfer to the same account.")
             return
 
         to_acct = accounts[to_acct_num]
 
-        if not to_acct.is_active():
+        if not to_acct.is_active(): # prevent transferring into disabled accounts 
             print("Destination account is disabled.")
             return
 
@@ -472,22 +472,22 @@ class TransactionProcessor:
 
         account = self.accounts[account_number]
 
-        if account.name.lower() != account_holder_name.lower():
+        if account.name.lower() != account_holder_name.lower(): # ownership check
             print("Account number does not match the specified account holder.")
             return
 
-        if not account.is_active():
+        if not account.is_active(): # account must be active
             print("Account is disabled. Cannot withdraw.")
             return
 
-        withdraw_amount = input("Enter withdrawal amount: ").strip()
+        withdraw_amount = input("Enter withdrawal amount: ").strip() # read as string first to validate numeric input
         try:
             amount = float(withdraw_amount)
         except ValueError:
             print("Invalid amount.")
             return
 
-        if amount <= 0:
+        if amount <= 0: # amount must be positive
             print("Withdraw amount has to be positive.")
             return
 
