@@ -159,51 +159,48 @@ class TransactionProcessor:
     # --------------------
     # deposit (04)
     # --------------------
-    def process_deposit(self, session_type: str, current_user: str) -> None:
+    def process_deposit(self, session_type: str, current_user: str) -> bool:
         acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to deposit into: ")
-        if acct is None:
-            return
-
-        if not acct.is_active():
-            print("Account is disabled. Cannot deposit.")
-            return
+        if acct is None or not acct.is_active():
+            print("Deposit rejected.")
+            return False
 
         amount = self._read_positive_amount("Enter amount to deposit: ")
         if amount is None:
-            return
+            return False
 
         # FE rule: deposit recorded; funds not available this session.
         # So we do NOT change acct.balance here.
         write_txn_line(self.output_file, "04", acct.name, acct.number, amount, "")
         self._log_debug(f"DEPOSIT accepted -> {acct.number} {amount:.2f}")
-
         print(f"Deposit accepted for account {acct.number}. (Funds available next session)")
+        return True
 
     # --------------------
     # withdrawal (01) - standard: $500 TOTAL per session
     # --------------------
-    def process_withdrawal(self, session_type: str, current_user: str) -> None:
+    def process_withdrawal(self, session_type: str, current_user: str) ->  bool:
         acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to withdraw from: ")
         if acct is None:
-            return
-
+            return False
+ 
         if not acct.is_active():
             print("Account is disabled. Cannot withdraw.")
-            return
+            return False
 
         amount = self._read_positive_amount("Enter withdrawal amount: ")
         if amount is None:
-            return
+            return False
 
         if session_type == "standard":
             remaining = self.STD_WITHDRAW_CAP - self.standard_withdraw_total
             if amount > remaining:
                 print(f"Session withdrawal limit exceeded. You have ${remaining:.2f} remaining this session.")
-                return
+                return False
 
         if acct.balance - amount < 0:
             print("Insufficient funds. Balance cannot go below $0.00")
-            return
+            return False
 
         # withdrawals DO change in-session balance (so later checks are correct)
         acct.balance -= amount
@@ -214,6 +211,7 @@ class TransactionProcessor:
         self._log_debug(f"WITHDRAW accepted -> {acct.number} {amount:.2f}")
 
         print(f"Withdraw accepted for account {acct.number}.")
+        return True
 
     # --------------------
     # transfer (02) - standard: $1000 TOTAL per session
@@ -221,42 +219,42 @@ class TransactionProcessor:
     # Many course versions allow transfer lines longer. If YOUR tests expect TO account,
     # we append it as an extra field (common in these projects).
     # --------------------
-    def transfer(self, session_type: str, current_user: str) -> None:
+    def transfer(self, session_type: str, current_user: str) -> bool:
         from_acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to transfer FROM: ")
         if from_acct is None:
-            return
+            return False
 
         if not from_acct.is_active():
             print("Source account is disabled. Cannot transfer.")
-            return
+            return False
 
         to_num = input("Enter account number to transfer TO: ").strip()
         if to_num not in self.accounts:
             print("Destination account not found.")
-            return
+            return False
 
         if to_num == from_acct.number:
             print("Cannot transfer to the same account.")
-            return
+            return False
 
         to_acct = self.accounts[to_num]
         if not to_acct.is_active():
             print("Destination account is disabled. Cannot transfer.")
-            return
+            return False
 
         amount = self._read_positive_amount("Enter transfer amount: ")
         if amount is None:
-            return
+            return False
 
         if session_type == "standard":
             remaining = self.STD_TRANSFER_CAP - self.standard_transfer_total
             if amount > remaining:
                 print(f"Session transfer limit exceeded. You have ${remaining:.2f} remaining this session.")
-                return
+                return False
 
         if from_acct.balance - amount < 0:
             print("Insufficient funds. Balance cannot go below $0.00")
-            return
+            return False
 
         # apply in-session balances
         from_acct.balance -= amount
@@ -280,6 +278,7 @@ class TransactionProcessor:
 
         self._log_debug(f"TRANSFER accepted -> {from_acct.number} -> {to_acct.number} {amount:.2f}")
         print(f"Transfer accepted from {from_acct.number} to {to_acct.number}.")
+        return True
 
     # --------------------
     # paybill (03) - standard: $2000 TOTAL per session
@@ -290,33 +289,33 @@ class TransactionProcessor:
         "FI": "Fast Internet, Inc.",
     }
 
-    def paybill(self, session_type: str, current_user: str) -> None:
+    def paybill(self, session_type: str, current_user: str) -> bool:
         acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to pay FROM: ")
         if acct is None:
-            return
+            return False
 
         if not acct.is_active():
             print("Account is disabled. Cannot pay bill.")
-            return
+            return False
 
         company_code = input("Enter company code (EC, CQ, FI): ").strip().upper()
         if company_code not in self.COMPANIES:
             print("Company not found.")
-            return
+            return False
 
         amount = self._read_positive_amount("Enter bill payment amount: ")
         if amount is None:
-            return
+            return False
 
         if session_type == "standard":
             remaining = self.STD_PAYBILL_CAP - self.standard_paybill_total
             if amount > remaining:
                 print(f"Session paybill limit exceeded. You have ${remaining:.2f} remaining this session.")
-                return
+                return False
 
         if acct.balance - amount < 0:
             print("Insufficient funds. Balance cannot go below $0.00")
-            return
+            return False
 
         # apply in-session balance
         acct.balance -= amount
@@ -328,52 +327,54 @@ class TransactionProcessor:
         self._log_debug(f"PAYBILL accepted -> {acct.number} {amount:.2f} {company_code}")
 
         print(f"Paybill accepted from {acct.number} to {self.COMPANIES[company_code]}.")
+        return True
 
     # --------------------
     # create (05) - admin only
     # --------------------
-    def process_create(self, session_type: str) -> None:
+    def process_create(self, session_type: str) -> bool:
         if not self._require_admin(session_type):
-            return
+            return False
 
         name = input("Enter NEW account holder name: ").strip()
         if not name:
             print("Name cannot be empty.")
-            return
+            return False
         if len(name) > 20:
             print("Name must be at most 20 characters.")
-            return
+            return False
 
         bal_str = input("Enter initial balance (e.g., 1000 or 1000.00): ").strip()
         try:
             balance = float(bal_str)
         except ValueError:
             print("Invalid balance. Please enter a numeric value.")
-            return
+            return False
 
         if balance < 0:
             print("Balance cannot be negative.")
-            return
+            return False
         if balance > 99999.99:
             print("Balance can be at most 99999.99.")
-            return
+            return False
 
         # Front End does NOT assign account number. Back End will.
         write_txn_line(self.output_file, "05", name, "00000", balance, "")
         self._log_debug(f"CREATE accepted -> {name} {balance:.2f}")
 
         print("Create accepted. (New account available next session)")
+        return True
 
     # --------------------
     # delete (06) - admin only
     # --------------------
-    def process_delete(self, session_type: str, current_user: str) -> None:
+    def process_delete(self, session_type: str, current_user: str) -> bool:
         if not self._require_admin(session_type):
-            return
+            return False
 
         acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to DELETE: ")
         if acct is None:
-            return
+            return False
 
         # record delete
         write_txn_line(self.output_file, "06", acct.name, acct.number, 0.0, "")
@@ -383,37 +384,40 @@ class TransactionProcessor:
         del self.accounts[acct.number]
 
         print(f"Delete accepted. Account {acct.number} removed for this session.")
+        return True
 
     # --------------------
     # disable (07) - admin only
     # --------------------
-    def process_disable(self, session_type: str, current_user: str) -> None:
+    def process_disable(self, session_type: str, current_user: str) -> bool:
         if not self._require_admin(session_type):
-            return
+            return False
 
         acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to DISABLE: ")
         if acct is None:
-            return
+            return False
 
         acct.status = "D"
         write_txn_line(self.output_file, "07", acct.name, acct.number, 0.0, "")
         self._log_debug(f"DISABLE accepted -> {acct.number}")
 
         print(f"Disable accepted. Account {acct.number} is now disabled for this session.")
+        return True
 
     # --------------------
     # changeplan (08) - admin only
     # --------------------
-    def process_changeplan(self, session_type: str, current_user: str) -> None:
+    def process_changeplan(self, session_type: str, current_user: str) -> bool:
         if not self._require_admin(session_type):
-            return
+            return False
 
         acct = self._resolve_account(session_type, current_user, prompt_acct="Enter account number to CHANGEPLAN: ")
         if acct is None:
-            return
+            return False
 
         # Front End records it; Back End applies plan + transaction fees.
         write_txn_line(self.output_file, "08", acct.name, acct.number, 0.0, "")
         self._log_debug(f"CHANGEPLAN accepted -> {acct.number}")
 
         print(f"Changeplan accepted for account {acct.number} (SP -> NP).")
+        return True

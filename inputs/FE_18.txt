@@ -4,6 +4,6 @@ Brandon
 paybill
 00001
 EC
-15.00
+15000.00
 logout
 exit

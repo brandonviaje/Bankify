@@ -4,6 +4,6 @@ Brandon
 transfer
 00001
 00002
-10.00
+200.00
 logout
 exit

@@ -3,9 +3,14 @@ from account_reader import read_bank_accounts
 class Session:
     # Constructor
     def __init__(self):
-        self.session_active = False   # session state
-        self.session_type = None      # "standard" or "admin"
-        self.current_user = None      # account holder name
+        self.session_active = False     # session state
+        self.session_type = None        # "standard" or "admin"
+        self.current_user = None        # account holder name
+        self.transactions_done = False  # track if a transaction happened
+
+    def mark_transaction(self):
+        """true whenever a transaction is successfully performed."""
+        self.transactions_done = True
 
     # Handle User Login
     def handle_login(self, file_path):
@@ -49,16 +54,6 @@ class Session:
         if not self.session_active:
             print("No active session. Please login first.")
             return
-
-        # write the accounts back to the file
-        user_formatted = self.current_user if self.current_user else ""
-
-        try:
-            with open(output_file_path, "a") as f:
-                f.write(f"00 {user_formatted:20} 00000 00000.00 \n")
-            print(f"End of session recorded in {output_file_path}.")
-        except Exception as e:
-            print(f"Error saving transaction file: {e}")
 
         # End login session
         self.session_active = False

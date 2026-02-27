@@ -3,9 +3,9 @@ standard
 Brandon
 deposit
 00001
-100.00
+600.00
 withdrawal
 00001
-50.00
+2600.00
 logout
 exit

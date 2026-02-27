@@ -3,6 +3,6 @@ standard
 Brandon
 withdrawal
 00001
-20.00
+3000.00
 logout
 exit
