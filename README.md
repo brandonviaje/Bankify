@@ -23,21 +23,6 @@
 
 ---
 
-## Project Structure
-
-```
-Bankify/
-│
-├── accounts.txt          # Stores account information
-├── transactions/         # Input .atf transaction files
-├── expected/             # Expected output files
-├── output/               # Program-generated outputs
-├── bankify.py            # Main program
-└── README.md
-```
-
----
-
 ## How to Run
 
 1. Clone the repository:
