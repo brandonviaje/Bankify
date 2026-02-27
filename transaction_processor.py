@@ -48,15 +48,15 @@ def write_txn_line(out_file: str, code: str, name: str, acct: str, amount: float
     )
     with open(out_file, "a") as f:
         f.write(line)
-from account_reader import read_bank_accounts
-from account_writer import format_account_line, write_bank_accounts
-from accounts import BankAccount
-
 
 class TransactionProcessor:
-    def __init__(self, accounts, transaction_file: str):
+    def __init__(self, accounts, transaction_file):
         self.accounts = accounts
-        self.transaction_file = transaction_file
+        self.output_file = transaction_file
+
+        self.standard_withdraw_total = 0
+        self.standard_transfer_total = 0
+        self.standard_paybill_total = 0
 
     # helpers
     # --------------------
@@ -76,30 +76,7 @@ class TransactionProcessor:
         if acct_num not in self.accounts:
             return False
         return self.accounts[acct_num].name.lower() == holder_name.lower()
-    
-    def _resolve_account(self, session_type: str, current_user: str) -> 'BankAccount | None':
-        #Prompt for and validate account, with admin name check. Returns account or None.
-        if session_type == "admin":
-            holder_name = input("Enter account holder name: ").strip()
-            if not self._name_exists(holder_name):
-                print("Account holder not found.")
-                return None
-        else:
-            holder_name = current_user
 
-        acct_num = input("Enter account number: ").strip()
-        if acct_num not in self.accounts:
-            print("Account not found.")
-            return None
-
-        acct = self.accounts[acct_num]
-        if acct.name.lower() != holder_name.lower():
-            print("Account number does not match the specified account holder.")
-            return None
-        
-        
-
-        return acct
 
     def _resolve_account(self, session_type: str, current_user: str) -> 'BankAccount | None':
         """Prompt for and validate account, with admin name check. Returns account or None."""
@@ -154,21 +131,10 @@ class TransactionProcessor:
         if acct is None:
             return
 
-        # can't deposit into disabled accounts
         if not acct.is_active():
             print("Account is disabled. Cannot deposit.")
             return
 
-        # ownership rules
-        if session_type == "standard":
-            if acct.name.lower() != current_user.lower():
-                print("You can only deposit into your own account.")
-                return
-        else:
-            # admin: account must belong to the holder name they typed
-            if acct.name.lower() != admin_holder.lower():
-                print("Account does not belong to the specified account holder.")
-                return
 
         # read and validate amount
         amount_str = input("Enter amount to deposit: ").strip()
@@ -225,10 +191,6 @@ class TransactionProcessor:
         # Just record it so the Back End can assign a unique account number later
         with open(self.output_file, "a") as f:
             write_txn_line(self.output_file, "05", name, "00000", balance)
-        # front end records create, but doesnt add it to self.accounts in this session
-        # account number uniqueness and creation happens when back end processes file
-        with open("transactions_file_log.txt", "a") as f:
-            f.write(f"CREATE {name} {balance:.2f}\n")
 
         print("Create accepted. (New account available next session)")
 
@@ -343,50 +305,64 @@ class TransactionProcessor:
     # --------------------
 
     def transfer(self, session_type, current_user):
-        # Resolve source account
+
+        session_limit = 1000.00
+
         account_from = self._resolve_account(session_type, current_user)
         if account_from is None:
             return
 
-        # Get destination account
-        account_number_to = input("Enter account number to transfer to: ").strip()
-        account_to = self.accounts.get(account_number_to)
+        if not account_from.is_active():
+            print("Account is disabled. Cannot transfer.")
+            return
 
+        # Get destination account
+        dest_number = input("Enter destination account number: ").strip()
+
+        account_to = self.accounts.get(dest_number)
         if account_to is None:
             print("Destination account not found.")
             return
 
-        if account_to.number == account_from.number:
-            print("Cannot transfer to the same account.")
-            return
-
-        # Get amount
         try:
-            amount = float(input("Enter amount to transfer: ").strip())
+            amount = float(input("Enter transfer amount: ").strip())
         except ValueError:
-            print("Invalid amount. Please enter a numeric value.")
+            print("Invalid amount.")
             return
 
-        # Validate amount
         if amount <= 0:
-            print("Amount must be positive.")
+            print("Transfer amount must be positive.")
             return
 
-        if session_type != "admin" and amount > 1000:
-            print("Amount must be less than or equal to $1000.")
-            return
+        # Standard user session transfer limit
+        if session_type == "standard":
+            remaining = session_limit - self.standard_transfer_total
 
-        if account_from.balance < amount:
-            print("Insufficient funds.")
+            if amount > remaining:
+                print(f"Session transfer limit exceeded. You have ${remaining:.2f} remaining this session.")
+                return
+
+            self.standard_transfer_total += amount
+
+        # Balance validation
+        if account_from.balance - amount < 0:
+            print("Insufficient funds. Balance cannot go below $0.00")
             return
 
         # Perform transfer
         account_from.balance -= amount
         account_to.balance += amount
 
-        self._log_transaction(f"Transferred ${amount} from {account_from.number} to {account_to.number}")
+        # Log transaction
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(
+                f"TRANSFER {account_from.number} {account_to.number} {amount:.2f} {account_from.name}\n"
+            )
 
         self._save_accounts()
+
+        print(f"Transfer accepted from account {account_from.number} to {account_to.number}")
+            
 
     # list of given companies to pay bills to
     companies = {
@@ -395,27 +371,27 @@ class TransactionProcessor:
     "FI": {"name": "Fast Internet, Inc.", "account_number": "99903", "balance": 40000},
     }
 
-    def paybill(self, session_type, current_user, companies=companies):
+    def paybill(self, session_type, current_user):
 
         account_from = self._resolve_account(session_type, current_user)
         if account_from is None:
             return
 
+        session_limit = 2000.00
+
         # ownership rules
         if session_type == "standard":
-            if acct.name.lower() != current_user.lower():
+            if account_from.name.lower() != current_user.lower():
                 print("You can only pay bills from your own account.")
-                return
-        else:
-            # admin: account must belong to the specified holder
-            if acct.name.lower() != admin_holder.lower():
-                print("Account does not belong to the specified account holder.")
                 return
 
         company_code = input("Enter company code (EC, CQ, FI): ").strip().upper()
+
         if company_code not in self.companies:
             print("Company not found.")
             return
+
+        company_data = self.companies[company_code]
 
         try:
             amount = float(input("Enter amount to pay: ").strip())
@@ -427,27 +403,34 @@ class TransactionProcessor:
             print("Amount must be positive.")
             return
 
-        # standard: enforce $2000 per session TOTAL
+        # standard session paybill limit
         if session_type == "standard":
             remaining = session_limit - self.standard_paybill_total
+
             if amount > remaining:
                 print(f"Session paybill limit exceeded. You have ${remaining:.2f} remaining this session.")
                 return
 
-            account_from.balance -= amount
-            company_data["balance"] += amount
+            self.standard_paybill_total += amount
 
-            self._log_transaction(f"Transferred ${amount} from {account_from.number} to {company_data['account_number']}")
+        # update balances
+        account_from.balance -= amount
+        self.accounts[company_data["account_number"]].balance += amount
 
-            self._save_accounts()
+        # log transaction
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(
+                f"PAYBILL {account_from.number} {amount:.2f} {company_data['account_number']}\n"
+            )
 
-        except ValueError:
-            print("Invalid amount. Please enter a numeric value.")
-            return
+        self._save_accounts()
+
+        print(f"Paybill accepted from account {account_from.number}")
 
     def process_withdrawal(self, session_type, current_user):
         # constraints for withdrawing
-        max_withdraw = 500.00
+        session_limit = 500.00
+
 
         # ask for account holder's name if logged in as admin
         # if session_type == "admin":
