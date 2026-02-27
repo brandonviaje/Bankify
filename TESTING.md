@@ -12,7 +12,9 @@ This will:
 - Run the program against all test cases
 - Generate transaction files
 - Simulate the full terminal session (user interaction flow)
-
+- Generate an `output/` directory containing:
+  - Produced `.atf` transaction files  
+  - Captured terminal logs (`.out`)
 ---
 
 ## About Terminal Logs
