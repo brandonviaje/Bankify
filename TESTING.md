@@ -5,7 +5,7 @@
 To execute the full test suite, run:
 
 ```bash
-./run_tests.sh
+bash run_tests.sh
 ```
 
 This will:
@@ -54,7 +54,7 @@ The validation script compares this entire output exactly to the expected output
 To compare the generated transaction file with the expected output:
 
 ```bash
-./validate_transaction_file.sh
+bash validate_transaction_file.sh
 ```
 
 This checks:
@@ -69,7 +69,7 @@ This checks:
 To compare the actual console simulation with the expected log:
 
 ```bash
-./validate_terminal_logs.sh
+bash validate_terminal_logs.sh
 ```
 
 This checks:
@@ -120,7 +120,7 @@ This checks:
 ## Recommended Workflow
 
 ```bash
-./run_tests.sh
-./validate_transaction_file.sh
-./validate_terminal_logs.sh
+bash run_tests.sh
+bash validate_transaction_file.sh
+bash validate_terminal_logs.sh
 ```
