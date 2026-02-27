@@ -22,7 +22,7 @@ def format_account_line(acct: BankAccount) -> str:
     We'll write: 12345_Name___________A_00001000
     """
     number = acct.number
-    name_padded = acct.name.ljust(NAME_WIDTH)
+    name_padded = acct.name.ljust(NAME_WIDTH, "_")
     status = acct.status  # "A" or "D"
 
     # Balance in file is 8 digits. We'll store as integer-like amount.
