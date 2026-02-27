@@ -48,7 +48,7 @@ Bankify/
 
 2. Run the program:
    ```bash
-   python3 main.py bank_accounts.txt transactions_file_log.txt
+   python3 main.py bank_accounts.txt daily_transaction_file.txt
    ```
 
 ---
