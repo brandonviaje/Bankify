@@ -1,0 +1,2 @@
+EXPECTED_CONSOLE:
+- Reject create due to invalid name and invalid balance.
