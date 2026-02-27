@@ -1,1 +1,17 @@
-- Successful transfer between valid accounts under limits.
+
+Please login to continue.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter account number to transfer FROM: Enter account number to transfer TO: Enter transfer amount: Transfer accepted from 00001 to 00002.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Logged out successfully. No transactions can be processed until login.

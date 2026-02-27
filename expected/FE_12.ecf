@@ -1,1 +1,18 @@
-- Reject transfer > $1000 in standard mode.
+
+Please login to continue.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter account number to transfer FROM: Enter account number to transfer TO: Enter transfer amount: Session transfer limit exceeded. You have $1000.00 remaining this session.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Logged out successfully. No transactions can be processed until login.
+[DEBUG] txn line length=41 expected=40 :: '00                      00000 00000.00   '

@@ -1,1 +1,28 @@
-- Delete accepted; further transactions on deleted account rejected.
+
+Please login to continue.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter session type (standard/admin): Logged in as ADMIN (admin)
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter account holder name: Enter account number to DELETE: [DEBUG] txn line length=41 expected=40 :: '06 Brandon              00001 00000.00   '
+Delete accepted. Account 00001 removed for this session.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Enter account holder name: Account holder not found.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Invalid transaction code
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: Logged out successfully. No transactions can be processed until login.
