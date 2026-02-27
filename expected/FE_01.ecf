@@ -1,0 +1,2 @@
+- Reject transactions before login.
+- Accept login (standard) and load accounts file.

@@ -1,0 +1,1 @@
+- Reject logout if no session is active.

@@ -1,0 +1,2 @@
+- On logout: write transaction file.
+- After logout: reject further transactions until next login.
