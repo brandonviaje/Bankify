@@ -1,7 +1,7 @@
 login
 admin
 create
-NewUser
+New User
 500.00
 logout
 exit
