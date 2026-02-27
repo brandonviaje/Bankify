@@ -16,6 +16,10 @@ Description:
     to the daily transaction output file.
 """
 
+from account_reader import read_bank_accounts
+from account_writer import format_account_line, write_bank_accounts
+from accounts import BankAccount
+
 # -------------------------
 # Transaction formatting helpers
 # -------------------------
@@ -44,20 +48,18 @@ def write_txn_line(out_file: str, code: str, name: str, acct: str, amount: float
     )
     with open(out_file, "a") as f:
         f.write(line)
+from account_reader import read_bank_accounts
+from account_writer import format_account_line, write_bank_accounts
+from accounts import BankAccount
+
 
 class TransactionProcessor:
-    def __init__(self, accounts, output_file: str):
-        # shared accounts dict loaded from the accounts file
+    def __init__(self, accounts, transaction_file: str):
         self.accounts = accounts
-        self.output_file = output_file
+        self.transaction_file = transaction_file
 
-        # track standard withdrawals across a single session resets on login in main.py
-        self.standard_withdraw_total = 0.0
-
-    # --------------------
     # helpers
     # --------------------
-
     def _require_admin(self, session_type: str) -> bool:
         # privileged transactions only work in admin mode
         if session_type != "admin":
@@ -69,29 +71,90 @@ class TransactionProcessor:
         # checks if there is at least one account with this holder name
         return any(acct.name.lower() == name.lower() for acct in self.accounts.values())
 
+    def _account_matches_holder(self, acct_num: str, holder_name: str) -> bool:
+        # checks acct exists and belongs to holder name
+        if acct_num not in self.accounts:
+            return False
+        return self.accounts[acct_num].name.lower() == holder_name.lower()
+    
+    def _resolve_account(self, session_type: str, current_user: str) -> 'BankAccount | None':
+        #Prompt for and validate account, with admin name check. Returns account or None.
+        if session_type == "admin":
+            holder_name = input("Enter account holder name: ").strip()
+            if not self._name_exists(holder_name):
+                print("Account holder not found.")
+                return None
+        else:
+            holder_name = current_user
+
+        acct_num = input("Enter account number: ").strip()
+        if acct_num not in self.accounts:
+            print("Account not found.")
+            return None
+
+        acct = self.accounts[acct_num]
+        if acct.name.lower() != holder_name.lower():
+            print("Account number does not match the specified account holder.")
+            return None
+        
+        
+
+        return acct
+
+    def _resolve_account(self, session_type: str, current_user: str) -> 'BankAccount | None':
+        """Prompt for and validate account, with admin name check. Returns account or None."""
+        if session_type == "admin":
+            holder_name = input("Enter account holder name: ").strip()
+            if not self._name_exists(holder_name):
+                print("Account holder not found.")
+                return None
+        else:
+            holder_name = current_user
+
+        acct_num = input("Enter account number: ").strip()
+        if acct_num not in self.accounts:
+            print("Account not found.")
+            return None
+
+        acct = self.accounts[acct_num]
+        if acct.name.lower() != holder_name.lower():
+            print("Account number does not match the specified account holder.")
+            return None
+
+        return acct
+    
+    def _log_transaction(self, message: str):
+        """Append a transaction message to the transaction log file."""
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(message + "\n")
+
+    def _save_accounts(self):
+        """Rewrite the accounts file with updated balances."""
+        with open("bank_accounts.txt", "w") as f:
+            for acct_num in sorted(self.accounts.keys()):
+                f.write(format_account_line(self.accounts[acct_num]) + "\n")
+            f.write("END_OF_FILE\n")
+
     # --------------------
     # deposit
     # --------------------
 
     def process_deposit(self, session_type: str, current_user: str) -> None:
-        # admin must specify which customers account they are acting on
-        admin_holder = None
-        if session_type == "admin":
-            admin_holder = input("Enter account holder name: ").strip()
-            if not any(acct.name.lower() == admin_holder.lower() for acct in self.accounts.values()):
-                print("Account holder not found.")
-                return
+        # ask which account the user wants to deposit into
+        # acct_num = input("Enter account number to deposit into (5 digits): ").strip()
 
-        acct_num = input("Enter account number to deposit into (5 digits): ").strip()
+        # # account must exist
+        # if acct_num not in self.accounts:
+        #     print("Account not found.")
+        #     return
 
-        # account must exist
-        if acct_num not in self.accounts:
-            print("Account not found.")
+        # acct = self.accounts[acct_num]
+
+        acct = self._resolve_account(session_type, current_user)
+        if acct is None:
             return
 
-        acct = self.accounts[acct_num]
-
-        # cant deposit into disabled accounts 
+        # can't deposit into disabled accounts
         if not acct.is_active():
             print("Account is disabled. Cannot deposit.")
             return
@@ -119,11 +182,11 @@ class TransactionProcessor:
             print("Amount must be positive.")
             return
 
-        # deposit is recorded only NOT applied this session
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "04", acct.name, acct_num, amount)
+        # deposits get recorded, but aren't available until next session (FE_22)
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"DEPOSIT {acct.number} {amount:.2f} {acct.name}\n")
 
-        print(f"Deposit accepted for account {acct_num}. (Funds available next session)")
+        print(f"Deposit accepted for account {acct.number}. (Funds available next session)")
 
     # --------------------
     # privileged: create
@@ -162,51 +225,52 @@ class TransactionProcessor:
         # Just record it so the Back End can assign a unique account number later
         with open(self.output_file, "a") as f:
             write_txn_line(self.output_file, "05", name, "00000", balance)
+        # front end records create, but doesnt add it to self.accounts in this session
+        # account number uniqueness and creation happens when back end processes file
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"CREATE {name} {balance:.2f}\n")
 
         print("Create accepted. (New account available next session)")
 
+
     # --------------------
     # privileged: delete
-    # --------------------
-
-    def process_delete(self, session_type: str) -> None:
-        """
-        Admin-only. Records a delete transaction and removes the account from this session.
-        """
+   
+    def process_delete(self, session_type: str, current_user: str) -> None:
         if not self._require_admin(session_type):
             return
 
-        holder_name = input("Enter account holder name: ").strip()
-        if not self._name_exists(holder_name):
-            print("Account holder not found.")
+        # holder_name = input("Enter account holder name: ").strip()
+        # if not self._name_exists(holder_name):
+        #     print("Account holder not found.")
+        #     return
+
+        # acct_num = input("Enter account number: ").strip()
+        # if acct_num not in self.accounts:
+        #     print("Account not found.")
+        #     return
+
+        # acct = self.accounts[acct_num]
+
+        acct = self._resolve_account(session_type, current_user)
+
+        if acct is None:
             return
+        # record transaction first
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"DELETE {acct.name} {acct.number}\n")
 
-        acct_num = input("Enter account number: ").strip()
-        if acct_num not in self.accounts:
-            print("Account not found.")
-            return
+        # no further transactions should be accepted on a deleted account in this session
+        del self.accounts[acct.number]
 
-        acct = self.accounts[acct_num]
-        if acct.name.lower() != holder_name.lower():
-            print("Account number does not match the specified account holder.")
-            return
+        print(f"Delete accepted. Account {acct.number} removed for this session.")
 
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "06", holder_name, acct_num, 0.0)
-
-        # prevent future transactions on this account for the rest of the session
-        del self.accounts[acct_num]
-
-        print(f"Delete accepted. Account {acct_num} removed for this session.")
 
     # --------------------
     # privileged: disable
     # --------------------
 
-    def process_disable(self, session_type: str) -> None:
-        """
-        Admin-only. Disables the account immediately (for this session) and records it.
-        """
+    def process_disable(self, session_type: str, current_user: str) -> None:
         if not self._require_admin(session_type):
             return
 
@@ -221,185 +285,120 @@ class TransactionProcessor:
             return
 
         acct = self.accounts[acct_num]
+
+        # acct = self._resolve_account(session_type, current_user)
+
+        #account number must match the specified account holder
         if acct.name.lower() != holder_name.lower():
             print("Account number does not match the specified account holder.")
             return
 
         acct.status = "D" # Disable status
 
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "07", holder_name, acct_num, 0.0)
+        # record transaction
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"DISABLE {acct.name} {acct.number}\n")
 
-        print(f"Disable accepted. Account {acct_num} is now disabled for this session.")
+        print(f"Disable accepted. Account {acct.number} is now disabled for this session.")
 
+  
     # --------------------
     # privileged: changeplan
     # --------------------
 
-    def process_changeplan(self, session_type: str) -> None:
-        # privileged transaction: admin only
+    def process_changeplan(self, session_type: str,current_user: str) -> None:
         if not self._require_admin(session_type):
             return
 
-        holder_name = input("Enter account holder name: ").strip()
-        if not self._name_exists(holder_name):
-            print("Account holder not found.")
+        # holder_name = input("Enter account holder name: ").strip()
+        # if not self._name_exists(holder_name):
+        #     print("Account holder not found.")
+        #     return
+
+        # acct_num = input("Enter account number: ").strip()
+        # if acct_num not in self.accounts:
+        #     print("Account not found.")
+        #     return
+
+        # acct = self.accounts[acct_num]
+
+        # # account number must match the specified account holder
+        # if acct.name.lower() != holder_name.lower():
+        #     print("Account number does not match the specified account holder.")
+        #     return
+
+        acct = self._resolve_account(session_type, current_user)
+        if acct is None:
             return
 
-        acct_num = input("Enter account number: ").strip()
-        if acct_num not in self.accounts:
-            print("Account not found.")
-            return
+        # your BankAccount doesn't store plan yet, so just record it for the back end
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"CHANGEPLAN {acct.name} {acct.number}\n")
 
-        acct = self.accounts[acct_num]
+        print(f"Changeplan accepted for account {acct.number} (SP -> NP).")
 
-        # account number must match the specified holder
-        if acct.name.lower() != holder_name.lower():
-            print("Account number does not match the specified account holder.")
-            return
-
-        # switch SP -> NP (only if currently SP)
-        if getattr(acct, "plan", "SP") != "SP":
-            print("Account is not on a student plan.")
-            return
-
-        acct.plan = "NP"  # update in-memory for this session
-
-        # record the change for the back end
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "08", holder_name, acct_num, 0.0)
-
-        print(f"Changeplan accepted. Account {acct_num} is now NP for this session.")
 
     # --------------------
     # transfer
     # --------------------
 
-    def transfer(self, session_type: str, current_user: str) -> None:
-        # track session total for standard transfers
-        if not hasattr(self, "standard_transfer_total"):
-            self.standard_transfer_total = 0.0
-
-        session_limit = 1000.00
-        accounts = self.accounts
-
-        # admin chooses which customer's account they are acting on
-        admin_holder = None
-        if session_type == "admin":
-            admin_holder = input("Enter account holder name: ").strip()
-            if not any(acct.name.lower() == admin_holder.lower() for acct in accounts.values()):
-                print("Account holder not found.")
-                return
-
-        from_acct_num = input("Enter account number to transfer from: ").strip()
-        if from_acct_num not in accounts:
-            print("Source account not found.")
+    def transfer(self, session_type, current_user):
+        # Resolve source account
+        account_from = self._resolve_account(session_type, current_user)
+        if account_from is None:
             return
 
-        from_acct = accounts[from_acct_num]
+        # Get destination account
+        account_number_to = input("Enter account number to transfer to: ").strip()
+        account_to = self.accounts.get(account_number_to)
 
-        # ownership rules
-        if session_type == "standard":
-            if from_acct.name != current_user:
-                print("You can only transfer from your own account.")
-                return
-        else:
-            # admin: from account must belong to the specified holder name
-            if from_acct.name.lower() != admin_holder.lower():
-                print("Source account does not belong to the specified account holder.")
-                return
-
-        if not from_acct.is_active():
-            print("Source account is disabled.")
-            return
-
-        to_acct_num = input("Enter account number to transfer to: ").strip()
-        if to_acct_num not in accounts:
+        if account_to is None:
             print("Destination account not found.")
             return
 
-        if from_acct_num == to_acct_num: # prevent transferring to the same account
+        if account_to.number == account_from.number:
             print("Cannot transfer to the same account.")
             return
 
-        to_acct = accounts[to_acct_num]
-
-        if not to_acct.is_active(): # prevent transferring into disabled accounts 
-            print("Destination account is disabled.")
-            return
-
+        # Get amount
         try:
             amount = float(input("Enter amount to transfer: ").strip())
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
             return
 
+        # Validate amount
         if amount <= 0:
             print("Amount must be positive.")
             return
 
-        # standard: enforce $1000 per session TOTAL
-        if session_type == "standard":
-            remaining = session_limit - self.standard_transfer_total
-            if amount > remaining:
-                print(f"Session transfer limit exceeded. You have ${remaining:.2f} remaining this session.")
-                return
-
-        # balances must stay >= 0 after transfer
-        if from_acct.balance - amount < 0:
-            print("Account balance cannot go below $0.")
+        if session_type != "admin" and amount > 1000:
+            print("Amount must be less than or equal to $1000.")
             return
 
-        # apply in memory
-        from_acct.balance -= amount
-        to_acct.balance += amount
+        if account_from.balance < amount:
+            print("Insufficient funds.")
+            return
 
-        # update session total
-        if session_type == "standard":
-            self.standard_transfer_total += amount
+        # Perform transfer
+        account_from.balance -= amount
+        account_to.balance += amount
 
-        # record transaction
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "02", from_acct.name, from_acct_num, amount, to_acct_num, 5)
+        self._log_transaction(f"Transferred ${amount} from {account_from.number} to {account_to.number}")
 
-        print(f"Transferred {amount:.2f} from {from_acct_num} to {to_acct_num}.")
+        self._save_accounts()
 
-    # --------------------
-    # paybill
-    # --------------------
-
+    # list of given companies to pay bills to
     companies = {
     "EC": {"name": "The Bright Light Electric Company", "account_number": "99901", "balance": 1000000},
     "CQ": {"name": "Credit Card Company Q", "account_number": "99902", "balance": 30000},
     "FI": {"name": "Fast Internet, Inc.", "account_number": "99903", "balance": 40000},
     }
 
-    def paybill(self, session_type: str, current_user: str) -> None:
-        # track session total for standard paybills
-        if not hasattr(self, "standard_paybill_total"):
-            self.standard_paybill_total = 0.0
+    def paybill(self, session_type, current_user, companies=companies):
 
-        session_limit = 2000.00
-        accounts = self.accounts
-
-        # admin chooses which customer's account they're paying from
-        admin_holder = None
-        if session_type == "admin":
-            admin_holder = input("Enter account holder name: ").strip()
-            if not any(acct.name.lower() == admin_holder.lower() for acct in accounts.values()):
-                print("Account holder not found.")
-                return
-
-        acct_num = input("Enter account number to pay from: ").strip()
-        if acct_num not in accounts:
-            print("Source account not found.")
-            return
-
-        acct = accounts[acct_num]
-
-        # must be active
-        if not acct.is_active():
-            print("Account is disabled. Cannot pay bill.")
+        account_from = self._resolve_account(session_type, current_user)
+        if account_from is None:
             return
 
         # ownership rules
@@ -435,49 +434,40 @@ class TransactionProcessor:
                 print(f"Session paybill limit exceeded. You have ${remaining:.2f} remaining this session.")
                 return
 
-        # balance must stay >= 0 after payment
-        if acct.balance - amount < 0:
-            print("Account balance cannot go below $0.")
+            account_from.balance -= amount
+            company_data["balance"] += amount
+
+            self._log_transaction(f"Transferred ${amount} from {account_from.number} to {company_data['account_number']}")
+
+            self._save_accounts()
+
+        except ValueError:
+            print("Invalid amount. Please enter a numeric value.")
             return
 
-        # apply in memory
-        acct.balance -= amount
+    def process_withdrawal(self, session_type, current_user):
+        # constraints for withdrawing
+        max_withdraw = 500.00
 
-        # update standard session total
-        if session_type == "standard":
-            self.standard_paybill_total += amount
+        # ask for account holder's name if logged in as admin
+        # if session_type == "admin":
+        #     account_holder_name = input("Enter account holder name: ").strip()
+        # else:
+        #     account_holder_name = current_user
 
-        # record transaction
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "03", acct.name, acct_num, amount, company_code, 2)
+        # # ask for account number
+        # account_number = input("Enter account number: ").strip()
+        # if account_number not in self.accounts:
+        #     print("Account holder not found")
+        #     return
 
-        print(f"Paid {amount:.2f} to {self.companies[company_code]['name']} from account {acct_num}.")
+        account = self._resolve_account(session_type, current_user)
 
-    # --------------------
-    # withdrawal (500 per session in standard mode)
-    # --------------------
-
-    def process_withdrawal(self, session_type: str, current_user: str) -> None:
-        session_limit = 500.00
-
-        if session_type == "admin":
-            account_holder_name = input("Enter account holder name: ").strip()
-        else:
-            account_holder_name = current_user
-
-        account_number = input("Enter account number: ").strip()
-        if account_number not in self.accounts:
-            print("Account not found.")
+        if account is None:
             return
 
-        account = self.accounts[account_number]
-
-        if account.name.lower() != account_holder_name.lower(): # ownership check
-            print("Account number does not match the specified account holder.")
-            return
-
-        if not account.is_active(): # account must be active
-            print("Account is disabled. Cannot withdraw.")
+        if not account.is_active():
+            print("Account is disabled. Cannot withdraw")
             return
 
         withdraw_amount = input("Enter withdrawal amount: ").strip() # read as string first to validate numeric input
@@ -502,13 +492,8 @@ class TransactionProcessor:
             print("Insufficient funds. Balance cannot go below $0.00")
             return
 
-        # apply in memory
-        account.balance -= amount
+        # withdrawals are recorded in transaction files
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"WITHDRAW {account.number} {amount:.2f} {account.name}\n")
 
-        if session_type == "standard":
-            self.standard_withdraw_total += amount
-
-        with open(self.output_file, "a") as f:
-            write_txn_line(self.output_file, "01", account.name, account_number, amount)
-
-        print(f"Withdraw accepted for account: {account_number}")
+        print(f"Withdraw accepted for account: {account.number}")

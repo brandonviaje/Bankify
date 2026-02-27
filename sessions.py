@@ -15,7 +15,10 @@ class Session:
             return None
 
         while True:
-            self.session_type = input("Enter session type (standard/admin): ").strip().lower()
+            try:
+                self.session_type = input("Enter session type (standard/admin): ").strip().lower()
+            except EOFError:
+                return None            
             if self.session_type in {"standard", "admin"}:
                 break
             print("Invalid session type. Retry")
