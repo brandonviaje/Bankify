@@ -4,15 +4,20 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+Enter transaction code: login
+Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter account number to pay FROM: Enter company code (EC, CQ, FI): Enter bill payment amount: [DEBUG] txn line length=41 expected=40 :: '03 Brandon              00001 00075.00 EC'
+Enter transaction code: paybill
+Enter account number to pay FROM: 00001
+Enter company code (EC, CQ, FI): EC
+Enter bill payment amount: 75.00
 Paybill accepted from 00001 to The Bright Light Electric Company.
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Logged out successfully. No transactions can be processed until login.
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.

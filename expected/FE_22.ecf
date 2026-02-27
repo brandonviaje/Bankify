@@ -4,20 +4,27 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+Enter transaction code: login
+Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter account number to deposit into: Enter amount to deposit: [DEBUG] txn line length=41 expected=40 :: '04 Brandon              00001 00600.00   '
+Enter transaction code: deposit
+Enter account number to deposit into: 00001
+Enter amount to deposit: 600.00
 Deposit accepted for account 00001. (Funds available next session)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter account number to withdraw from: Enter withdrawal amount: Session withdrawal limit exceeded. You have $500.00 remaining this session.
+Enter transaction code: withdrawal
+Enter account number to withdraw from: 00001
+Enter withdrawal amount: 2600.00
+Session withdrawal limit exceeded. You have $500.00 remaining this session.
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Logged out successfully. No transactions can be processed until login.
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.

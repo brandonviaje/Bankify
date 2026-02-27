@@ -4,15 +4,19 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter session type (standard/admin): Logged in as ADMIN (admin)
+Enter transaction code: login
+Enter session type (standard/admin): Logged in as ADMIN (admin)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter NEW account holder name: Enter initial balance (e.g., 1000 or 1000.00): [DEBUG] txn line length=41 expected=40 :: '05 New User             00000 00500.00   '
+Enter transaction code: create
+Enter NEW account holder name: New User
+Enter initial balance (e.g., 1000 or 1000.00): 500.00
 Create accepted. (New account available next session)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Logged out successfully. No transactions can be processed until login.
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.

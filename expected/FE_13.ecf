@@ -4,20 +4,25 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+Enter transaction code: login
+Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter account number to transfer FROM: Enter account number to transfer TO: Destination account not found.
+Enter transaction code: transfer
+Enter account number to transfer FROM: 00001
+Enter account number to transfer TO: 99999
+Destination account not found.
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Invalid transaction code
+Enter transaction code: 5.00
+Invalid transaction code
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Logged out successfully. No transactions can be processed until login.
-[DEBUG] txn line length=41 expected=40 :: '00                      00000 00000.00   '
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.

@@ -4,15 +4,19 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter session type (standard/admin): Logged in as ADMIN (admin)
+Enter transaction code: login
+Enter session type (standard/admin): Logged in as ADMIN (admin)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter account holder name: Enter account number to CHANGEPLAN: [DEBUG] txn line length=41 expected=40 :: '08 Brandon              00001 00000.00   '
+Enter transaction code: changeplan
+Enter account holder name: Brandon
+Enter account number to CHANGEPLAN: 00001
 Changeplan accepted for account 00001 (SP -> NP).
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Logged out successfully. No transactions can be processed until login.
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.

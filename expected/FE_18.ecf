@@ -4,15 +4,20 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+Enter transaction code: login
+Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Enter account number to pay FROM: Enter company code (EC, CQ, FI): Enter bill payment amount: Session paybill limit exceeded. You have $2000.00 remaining this session.
+Enter transaction code: paybill
+Enter account number to pay FROM: 00001
+Enter company code (EC, CQ, FI): EC
+Enter bill payment amount: 15000.00
+Session paybill limit exceeded. You have $2000.00 remaining this session.
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: Logged out successfully. No transactions can be processed until login.
-[DEBUG] txn line length=41 expected=40 :: '00                      00000 00000.00   '
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.
