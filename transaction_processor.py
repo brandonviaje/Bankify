@@ -59,12 +59,17 @@ def write_txn_line(out_file: str, code: str, name: str, acct: str, amount: float
     )
     # should be exactly 40 characters before newline
     # (keep this check while debugging; you can remove later)
-    if len(line) != 40:
-        print(f"[DEBUG] txn line length={len(line)} expected=40 :: {repr(line)}")
+    # if len(line) != 40:
+        # print(f"[DEBUG] txn line length={len(line)} expected=40 :: {repr(line)}")
 
     with open(out_file, "a") as f:
         f.write(line + "\n")
 
+def custom_input(prompt: str) -> str:
+    """Wraps the standard input to echo the user's keystrokes to stdout."""
+    user_input = input(prompt)
+    print(user_input)  # Echoes the input and adds a newline for the .out file
+    return user_input
 
 class TransactionProcessor:
     """
@@ -109,7 +114,7 @@ class TransactionProcessor:
         return True
 
     def _find_holder_name_for_admin(self) -> Optional[str]:
-        holder = input("Enter account holder name: ").strip()
+        holder = custom_input("Enter account holder name: ").strip()
         if not holder:
             print("Account holder name cannot be empty.")
             return None
@@ -132,7 +137,7 @@ class TransactionProcessor:
         else:
             holder = current_user
 
-        acct_num = input(prompt_acct).strip()
+        acct_num = custom_input(prompt_acct).strip()
         if acct_num not in self.accounts:
             print("Account not found.")
             return None
@@ -145,7 +150,7 @@ class TransactionProcessor:
         return acct
 
     def _read_positive_amount(self, prompt: str) -> Optional[float]:
-        raw = input(prompt).strip()
+        raw = custom_input(prompt).strip()
         try:
             amt = float(raw)
         except ValueError:
@@ -228,7 +233,7 @@ class TransactionProcessor:
             print("Source account is disabled. Cannot transfer.")
             return False
 
-        to_num = input("Enter account number to transfer TO: ").strip()
+        to_num = custom_input("Enter account number to transfer TO: ").strip()
         if to_num not in self.accounts:
             print("Destination account not found.")
             return False
@@ -298,7 +303,7 @@ class TransactionProcessor:
             print("Account is disabled. Cannot pay bill.")
             return False
 
-        company_code = input("Enter company code (EC, CQ, FI): ").strip().upper()
+        company_code = custom_input("Enter company code (EC, CQ, FI): ").strip().upper()
         if company_code not in self.COMPANIES:
             print("Company not found.")
             return False
@@ -336,7 +341,7 @@ class TransactionProcessor:
         if not self._require_admin(session_type):
             return False
 
-        name = input("Enter NEW account holder name: ").strip()
+        name = custom_input("Enter NEW account holder name: ").strip()
         if not name:
             print("Name cannot be empty.")
             return False
@@ -344,7 +349,7 @@ class TransactionProcessor:
             print("Name must be at most 20 characters.")
             return False
 
-        bal_str = input("Enter initial balance (e.g., 1000 or 1000.00): ").strip()
+        bal_str = custom_input("Enter initial balance (e.g., 1000 or 1000.00): ").strip()
         try:
             balance = float(bal_str)
         except ValueError:

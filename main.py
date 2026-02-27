@@ -3,6 +3,7 @@ from account_reader import read_bank_accounts
 from sessions import Session
 from transaction_processor import TransactionProcessor
 from transaction_processor import write_txn_line 
+from transaction_processor import custom_input
 
 """
 Bank ATM Front-End Main Program
@@ -38,7 +39,7 @@ def main():
         print("login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit\n")
 
         try:
-            code = input("Enter transaction code: ").strip().lower()
+            code = custom_input("Enter transaction code: ").strip().lower()
         except EOFError:
             print("\nExiting program.")
             break
