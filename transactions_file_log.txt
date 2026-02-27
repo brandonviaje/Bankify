@@ -8,3 +8,13 @@ CREATE NewUser              00000 00500.00
 DELETE Brandon              00001 00000.00 
 DISABLE Brandon              00001 00000.00 
 CHANGEPLAN Brandon              00001 00000.00 
+TRANSFER Brandon              00001 00010.00 
+TRANSFER Brandon              00001 00050.00 
+PAYBILL Brandon              00001 00005.00 EC 
+PAYBILL Brandon              00001 00015.00 EC 
+DEPOSIT Brandon              00001 00020.00 
+DEPOSIT Brandon              00001 00100.00 
+CREATE NewUser              00000 00500.00 
+DELETE Brandon              00001 00000.00 
+DISABLE Brandon              00001 00000.00 
+CHANGEPLAN Brandon              00001 00000.00 

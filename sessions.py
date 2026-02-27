@@ -1,4 +1,4 @@
-from account_writer import write_bank_accounts
+from account_reader import read_bank_accounts
 
 class Session:
     # Constructor
@@ -8,26 +8,32 @@ class Session:
         self.current_user = None      # account holder name
 
     # Handle User Login
-    def handle_login(self,accounts):
+    def handle_login(self, file_path):
 
-        # check if an account is already logged in
         if self.session_active:
             print("Already logged in.")
-            return
+            return None
 
-        # get session type
         while True:
             self.session_type = input("Enter session type (standard/admin): ").strip().lower()
             if self.session_type in {"standard", "admin"}:
                 break
-
             print("Invalid session type. Retry")
 
-        # handle session types
         if self.session_type == "standard":
             self.current_user = input("Enter account holder name: ").strip()
         else:
             self.current_user = "ADMIN"
+
+        accounts = read_bank_accounts(file_path)
+
+
+        if self.session_type == "standard":
+            if not any(acc.name.lower() == self.current_user.lower() for acc in accounts.values()):
+                print("Account holder not found.")
+                self.session_type = None
+                self.current_user = None
+                return None
 
         self.session_active = True
         print(f"Logged in as {self.current_user} ({self.session_type})")

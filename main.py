@@ -48,9 +48,12 @@ if __name__ == "__main__":
             break 
 
         if code == "login":
-            session.handle_login(accounts)
-            # handle_login returns a new dict, so refresh tp
-            tp.accounts = accounts
+            accounts = session.handle_login(accounts_file)
+        # Only update if login succeeded
+            if accounts is not None:
+                tp.accounts = accounts
+                tp.standard_withdraw_total = 0.0
+                tp.standard_transfer_total = 0.0
 
         elif code == "logout":
             if not session.session_active:
