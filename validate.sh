@@ -4,6 +4,7 @@ echo "  VALIDATING TRANSACTION FILES (.atf)   "
 
 # loop through all expected transaction files
 for expected_file in expected/*.etf; do
+
     # get the base name (e.g., FE_09)
     filename=$(basename -- "$expected_file")
     base="${filename%.*}"
@@ -23,6 +24,8 @@ echo "VALIDATING TERMINAL LOGS (.out)"
 
 # loop through expected logs
 for expected_log in expected/*.ecf; do
+
+    # get the base name (e.g., FE_09)
     filename=$(basename -- "$expected_log")
     base="${filename%.*}"
     
@@ -33,6 +36,6 @@ for expected_log in expected/*.ecf; do
         echo "  -> PASS"
     else
         echo "  -> FAIL (Differences found)"
-        # diff "outputs/$base.out" "expected/$base.ecf"
+        diff "outputs/$base.out" "expected/$base.ecf"
     fi
 done
