@@ -1,29 +1,14 @@
-"""
-File: Transaction_processor.py
-Author: Jason, Richard, Moksh 
-Description:
-    This class handles the functionalities of banking transactions including:
-
-        -process_withdrawal()
-        -process_deposit()
-        -process_changeplain()
-        -transfer()
-        -paybill()
-    
-    Each method validates the user session and executes corresponding transaction type and
-    outputs are written to a transaction text file.
-"""
 from account_reader import read_bank_accounts
 from account_writer import format_account_line, write_bank_accounts
+from accounts import BankAccount
+
 
 class TransactionProcessor:
-    def __init__(self, accounts, output_file):
-        # shared accounts dict loaded from the accounts file
+    def __init__(self, accounts, transaction_file):
         self.accounts = accounts
-        self.output_file = output_file
+        self.transaction_file = transaction_file
 
     # helpers
-
     def _require_admin(self, session_type: str) -> bool:
         # privileged transactions only work in admin mode
         if session_type != "admin":
@@ -40,37 +25,81 @@ class TransactionProcessor:
         if acct_num not in self.accounts:
             return False
         return self.accounts[acct_num].name.lower() == holder_name.lower()
+    
+    def _resolve_account(self, session_type: str, current_user: str) -> 'BankAccount | None':
+        #Prompt for and validate account, with admin name check. Returns account or None.
+        if session_type == "admin":
+            holder_name = input("Enter account holder name: ").strip()
+            if not self._name_exists(holder_name):
+                print("Account holder not found.")
+                return None
+        else:
+            holder_name = current_user
 
+        acct_num = input("Enter account number: ").strip()
+        if acct_num not in self.accounts:
+            print("Account not found.")
+            return None
+
+        acct = self.accounts[acct_num]
+        if acct.name.lower() != holder_name.lower():
+            print("Account number does not match the specified account holder.")
+            return None
+        
+        
+
+        return acct
+
+    def _resolve_account(self, session_type: str, current_user: str) -> 'BankAccount | None':
+        """Prompt for and validate account, with admin name check. Returns account or None."""
+        if session_type == "admin":
+            holder_name = input("Enter account holder name: ").strip()
+            if not self._name_exists(holder_name):
+                print("Account holder not found.")
+                return None
+        else:
+            holder_name = current_user
+
+        acct_num = input("Enter account number: ").strip()
+        if acct_num not in self.accounts:
+            print("Account not found.")
+            return None
+
+        acct = self.accounts[acct_num]
+        if acct.name.lower() != holder_name.lower():
+            print("Account number does not match the specified account holder.")
+            return None
+
+        return acct
+    
+    def _log_transaction(self, message: str):
+        """Append a transaction message to the transaction log file."""
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(message + "\n")
+
+    def _save_accounts(self):
+        """Rewrite the accounts file with updated balances."""
+        with open("bank_accounts.txt", "w") as f:
+            for acct_num in sorted(self.accounts.keys()):
+                f.write(format_account_line(self.accounts[acct_num]) + "\n")
+            f.write("END_OF_FILE\n")
 
     # deposit
 
     def process_deposit(self, session_type: str, current_user: str) -> None:
-        """
-        Process a deposit transaction for a specified account 
-
-        This method: 
-            - Prompts the user to enter a 5-digit account number 
-            - Verifies that the account exists and is active 
-            - Ensures standard users can only deposit into their own accounts 
-            - Prompts and validates deposit amount 
-            - Records the transaction in a transaction log file 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-            current_user (str): The username of currently logged-in user
-
-        Returns:
-            None
-        """
         # ask which account the user wants to deposit into
-        acct_num = input("Enter account number to deposit into (5 digits): ").strip()
+        # acct_num = input("Enter account number to deposit into (5 digits): ").strip()
 
-        # account must exist
-        if acct_num not in self.accounts:
-            print("Account not found.")
+        # # account must exist
+        # if acct_num not in self.accounts:
+        #     print("Account not found.")
+        #     return
+
+        # acct = self.accounts[acct_num]
+
+        acct = self._resolve_account(session_type, current_user)
+        if acct is None:
             return
-
-        acct = self.accounts[acct_num]
 
         # can't deposit into disabled accounts
         if not acct.is_active():
@@ -96,29 +125,14 @@ class TransactionProcessor:
 
         # deposits get recorded, but aren't available until next session (FE_22)
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"DEPOSIT {acct.name:20} {acct_num:05} {amount:08.2f} \n")
+            f.write(f"DEPOSIT {acct.number} {amount:.2f} {acct.name}\n")
 
-        print(f"Deposit accepted for account {acct_num}. (Funds available next session)")
+        print(f"Deposit accepted for account {acct.number}. (Funds available next session)")
 
 
     # privileged: create
  
     def process_create(self, session_type: str) -> None:
-        """
-        Process an account creation transaction for a specified account 
-
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for an account holder name 
-           - Prompts and validates an initial balance
-           - Records the account creation in transaction log file 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-
-        Returns:
-            None
-        """
         if not self._require_admin(session_type):
             return
 
@@ -149,78 +163,46 @@ class TransactionProcessor:
         # front end records create, but doesnt add it to self.accounts in this session
         # account number uniqueness and creation happens when back end processes file
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"CREATE {name:20} 00000 {balance:08.2f} \n")
+            f.write(f"CREATE {name} {balance:.2f}\n")
 
         print("Create accepted. (New account available next session)")
+
   
     # privileged: delete
    
-    def process_delete(self, session_type: str) -> None:
-        """
-        Process an account deletion for a specified account 
-
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for an account holder name 
-           - Prompts and validates for an account number name 
-           - Prompts and validates an initial balance
-           - Records the account deletion in transaction log file 
-           - Removes the account from self.accounts for the current session 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-
-        Returns:
-            None
-        """
+    def process_delete(self, session_type: str, current_user: str) -> None:
         if not self._require_admin(session_type):
             return
 
-        holder_name = input("Enter account holder name: ").strip()
-        if not self._name_exists(holder_name):
-            print("Account holder not found.")
+        # holder_name = input("Enter account holder name: ").strip()
+        # if not self._name_exists(holder_name):
+        #     print("Account holder not found.")
+        #     return
+
+        # acct_num = input("Enter account number: ").strip()
+        # if acct_num not in self.accounts:
+        #     print("Account not found.")
+        #     return
+
+        # acct = self.accounts[acct_num]
+
+        acct = self._resolve_account(session_type, current_user)
+
+        if acct is None:
             return
-
-        acct_num = input("Enter account number: ").strip()
-        if acct_num not in self.accounts:
-            print("Account not found.")
-            return
-
-        acct = self.accounts[acct_num]
-
-        # account number must match the specified account holder
-        if acct.name.lower() != holder_name.lower():
-            print("Account number does not match the specified account holder.")
-            return
-
         # record transaction first
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"DELETE {holder_name:20} {acct_num:05} 00000.00 \n")
+            f.write(f"DELETE {acct.name} {acct.number}\n")
 
         # no further transactions should be accepted on a deleted account in this session
-        del self.accounts[acct_num]
+        del self.accounts[acct.number]
 
-        print(f"Delete accepted. Account {acct_num} removed for this session.")
+        print(f"Delete accepted. Account {acct.number} removed for this session.")
+
 
     # privileged: disable
 
-    def process_disable(self, session_type: str) -> None:
-        """
-        Process an account disable for an existing account 
-
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for an account holder name 
-           - Prompts and validates for an account number name 
-           - Records the account disable in transaction log file 
-           - Chagnges the account to disabled for the current session 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-
-        Returns:
-            None
-        """
+    def process_disable(self, session_type: str, current_user: str) -> None:
         if not self._require_admin(session_type):
             return
 
@@ -236,7 +218,9 @@ class TransactionProcessor:
 
         acct = self.accounts[acct_num]
 
-        # account number must match the specified account holder
+        # acct = self._resolve_account(session_type, current_user)
+
+        #account number must match the specified account holder
         if acct.name.lower() != holder_name.lower():
             print("Account number does not match the specified account holder.")
             return
@@ -246,142 +230,92 @@ class TransactionProcessor:
 
         # record transaction
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"DISABLE {holder_name:20} {acct_num:05} 00000.00 \n")
+            f.write(f"DISABLE {acct.name} {acct.number}\n")
 
-        print(f"Disable accepted. Account {acct_num} is now disabled for this session.")
+        print(f"Disable accepted. Account {acct.number} is now disabled for this session.")
 
+  
     # privileged: changeplan
 
-    def process_changeplan(self, session_type: str) -> None:
-        """
-        Process an account plan change for an existing account 
-
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for an account holder name 
-           - Prompts and validates for an account number name 
-           - Records the account plan change in transaction log file 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-
-        Returns:
-            None
-        """
+    def process_changeplan(self, session_type: str,current_user: str) -> None:
         if not self._require_admin(session_type):
             return
 
-        holder_name = input("Enter account holder name: ").strip()
-        if not self._name_exists(holder_name):
-            print("Account holder not found.")
-            return
+        # holder_name = input("Enter account holder name: ").strip()
+        # if not self._name_exists(holder_name):
+        #     print("Account holder not found.")
+        #     return
 
-        acct_num = input("Enter account number: ").strip()
-        if acct_num not in self.accounts:
-            print("Account not found.")
-            return
+        # acct_num = input("Enter account number: ").strip()
+        # if acct_num not in self.accounts:
+        #     print("Account not found.")
+        #     return
 
-        acct = self.accounts[acct_num]
+        # acct = self.accounts[acct_num]
 
-        # account number must match the specified account holder
-        if acct.name.lower() != holder_name.lower():
-            print("Account number does not match the specified account holder.")
+        # # account number must match the specified account holder
+        # if acct.name.lower() != holder_name.lower():
+        #     print("Account number does not match the specified account holder.")
+        #     return
+
+        acct = self._resolve_account(session_type, current_user)
+        if acct is None:
             return
 
         # your BankAccount doesn't store plan yet, so just record it for the back end
         with open("transactions_file_log.txt", "a") as f:
-            f.write(f"CHANGEPLAN {holder_name:20} {acct_num:05} 00000.00 \n")
+            f.write(f"CHANGEPLAN {acct.name} {acct.number}\n")
 
-        print(f"Changeplan accepted for account {acct_num} (SP -> NP).")
+        print(f"Changeplan accepted for account {acct.number} (SP -> NP).")
+
 
     # transfer
 
     def transfer(self, session_type, current_user):
-        """
-        Process a transfer funds between two accounts
-
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for source account
-           - Ensure standard users can only transder from their own account
-           - Prompts and validates for an account number name 
-           - Prompts for and validate the transfer amount:
-                *Standard users: amount must be between > 0 and <= 1000
-                *All users: cannot drop below 0
-           - Records the fund transfer in transaction log file 
-           - Writes updated balance in bank account log file 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-            current_user (str): The username of currently logged-in user
-
-        Returns:
-            None
-        """
-        accounts = self.accounts
-
-        # checks if user is admin, if so ask for account holder name to transfer from
-        if session_type == "admin":
-            account_holder_name = input("Enter account holder name: ").strip()
-
-            matching_accounts = [
-                acct_num for acct_num, acct in accounts.items()
-                if acct.name.lower() == account_holder_name.lower()
-            ]
-            if not matching_accounts:
-                print("Account holder not found.")
-                return
-
-        account_number_from = input("Enter account number to transfer from: ").strip()
-        if account_number_from not in accounts:
-            print("Source account not found.")
-            return
-        account_from = accounts[account_number_from]
-
-        # standard user can only transfer from their own account
-        if session_type != "admin" and account_from.name != current_user:
-            print("You can only transfer from your own account.")
+        # Resolve source account
+        account_from = self._resolve_account(session_type, current_user)
+        if account_from is None:
             return
 
+        # Get destination account
         account_number_to = input("Enter account number to transfer to: ").strip()
+        account_to = self.accounts.get(account_number_to)
 
-        if account_number_to not in accounts:
+        if account_to is None:
             print("Destination account not found.")
             return
 
-        if account_number_from == account_number_to:
+        if account_to.number == account_from.number:
             print("Cannot transfer to the same account.")
             return
 
-        account_to = accounts[account_number_to]
-
-        # try to read and validate amount to transfer
+        # Get amount
         try:
-            amount = float(input("Enter amount to transfer: "))
+            amount = float(input("Enter amount to transfer: ").strip())
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
             return
 
-        try:
-            if session_type != "admin":
-                if amount <= 0 or amount > 1000:
-                    print("Amount must be positive and less than or equal to $1000.")
-                    return
-            if account_from.balance - amount < 0 or account_to.balance + amount < 0:
-                print("Account balance cannot go below $0.")
-                return
-
-            account_from.balance -= amount
-            account_to.balance += amount
-            print(f"Transferred {amount} from {account_number_from} to {account_number_to}.")
-
-            # record transaction in transaction log
-            with open("transactions_file_log.txt", "a") as f:
-                f.write(f"TRANSFER {account_from.name:20} {account_number_from:05} {amount:08.2f} \n")
-
-        except ValueError:
-            print("Invalid amount. Please enter a numeric value.")
+        # Validate amount
+        if amount <= 0:
+            print("Amount must be positive.")
             return
+
+        if session_type != "admin" and amount > 1000:
+            print("Amount must be less than or equal to $1000.")
+            return
+
+        if account_from.balance < amount:
+            print("Insufficient funds.")
+            return
+
+        # Perform transfer
+        account_from.balance -= amount
+        account_to.balance += amount
+
+        self._log_transaction(f"Transferred ${amount} from {account_from.number} to {account_to.number}")
+
+        self._save_accounts()
 
     # list of given companies to pay bills to
     companies = {
@@ -403,50 +337,9 @@ class TransactionProcessor:
     }
 
     def paybill(self, session_type, current_user, companies=companies):
-        """
-        Process a paybill from a user account to a predefined company
 
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for an account number
-           - Ensure standard users can only paybill from their own account
-           - Prompts and validates for company code from predefined list
-           - Prompts for and validate the payment amount:
-                *Standard users: amount must be between > 0 and <= 1000
-                *All users: cannot drop below 0
-           - Deducts the amount from user account and add to selected company's balance
-           - Records the paubill in transaction log file 
-           - Writes updated balance in bank account log file 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-            current_user (str): The username of currently logged-in user
-
-        Returns:
-            None
-        """
-
-        accounts = self.accounts
-
-        # checks if user is admin, if so ask for account holder name to pay bill from
-        if session_type == "admin":
-            account_holder_name = input("Enter account holder name: ").strip()
-
-            # your accounts dict is keyed by account number, so check via values()
-            if not any(acct.name.lower() == account_holder_name.lower() for acct in accounts.values()):
-                print("Account holder not found.")
-                return
-
-        account_number_from = input("Enter account number to transfer from: ").strip()
-
-        if account_number_from not in accounts:
-            print("Source account not found.")
-            return
-
-        account_from = accounts[account_number_from]
-
-        if session_type != "admin" and account_from.name != current_user:
-            print("You can only transfer from your own account.")
+        account_from = self._resolve_account(session_type, current_user)
+        if account_from is None:
             return
 
         company_code = input("Enter company to transfer to: ").strip().upper()
@@ -474,56 +367,35 @@ class TransactionProcessor:
             account_from.balance -= amount
             company_data["balance"] += amount
 
-            print(f"\nTransferred {amount} from {account_number_from} to {company_data['name']}.")
+            self._log_transaction(f"Transferred ${amount} from {account_from.number} to {company_data['account_number']}")
 
-            with open("transactions_file_log.txt", "a") as f:
-                f.write(f"PAYBILL {account_from.name:20} {account_number_from:05} {amount:08.2f} {company_code:2} \n")
+            self._save_accounts()
 
         except ValueError:
             print("Invalid amount. Please enter a numeric value.")
             return
 
     def process_withdrawal(self, session_type, current_user):
-        """
-        Process an account withdrawal for an existing account 
-
-        This method: 
-           - Verifies the current session had admin privileges
-           - Prompts for an account holder name 
-           - Prompts and validates for an account number 
-           - Verifies the active account
-           - Prompts for withdrawal amount:
-                *$500 limit for standard users
-                *Account balance cannot drop below 0  
-           - Records the account withdrawal in transaction log file 
-
-        Parameters: 
-            session_type (str): The type of session - "admin" or "standard"
-            current_user (str): The username of currently logged-in user
-
-        Returns:
-            None
-        """
         # constraints for withdrawing
         max_withdraw = 500.00
 
         # ask for account holder's name if logged in as admin
-        if session_type == "admin":
-            account_holder_name = input("Enter account holder name: ").strip()
-        else:
-            account_holder_name = current_user
+        # if session_type == "admin":
+        #     account_holder_name = input("Enter account holder name: ").strip()
+        # else:
+        #     account_holder_name = current_user
 
-        # ask for account number
-        account_number = input("Enter account number: ").strip()
-        if account_number not in self.accounts:
-            print("Account holder not found")
+        # # ask for account number
+        # account_number = input("Enter account number: ").strip()
+        # if account_number not in self.accounts:
+        #     print("Account holder not found")
+        #     return
+
+        account = self._resolve_account(session_type, current_user)
+
+        if account is None:
             return
 
-        account = self.accounts[account_number]
-
-        if account.name != account_holder_name:
-            print("Account is invalid")
-            return
         if not account.is_active():
             print("Account is disabled. Cannot withdraw")
             return
@@ -548,7 +420,7 @@ class TransactionProcessor:
             return
 
         # withdrawals are recorded in transaction files
-        with open(self.output_file, "a") as f:
-            f.write(f"WITHDRAW {account.name:20} {account_number:05} {amount:08.2f} \n")
+        with open("transactions_file_log.txt", "a") as f:
+            f.write(f"WITHDRAW {account.number} {amount:.2f} {account.name}\n")
 
-        print(f"Withdraw accepted for account: {account_number}")
+        print(f"Withdraw accepted for account: {account.number}")

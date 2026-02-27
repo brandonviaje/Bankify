@@ -86,13 +86,13 @@ if __name__ == "__main__":
                 tp.process_create(session.session_type)
 
             elif code == "delete":
-                tp.process_delete(session.session_type)
+                tp.process_delete(session.session_type, session.current_user)
 
             elif code == "disable":
-                tp.process_disable(session.session_type)
+                tp.process_disable(session.session_type, session.current_user)
 
             elif code == "changeplan":
-                tp.process_changeplan(session.session_type)
+                tp.process_changeplan(session.session_type, session.current_user)
 
             else:
                 print("Invalid transaction code")
