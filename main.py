@@ -54,6 +54,7 @@ if __name__ == "__main__":
                 tp.accounts = accounts
                 tp.standard_withdraw_total = 0.0
                 tp.standard_transfer_total = 0.0
+                tp.standard_paybill_total = 0.0
 
         elif code == "logout":
             if not session.session_active:
