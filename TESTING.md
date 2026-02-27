@@ -20,7 +20,6 @@ This will:
 ## About Terminal Logs
 
 The terminal logs represent the **full ATM simulation**, including prompts and system responses.
-The terminal logs **do NOT capture user input**. They only capture what the program **prints to terminal**.
 
 Example output:
 
@@ -30,14 +29,15 @@ Please login to continue.
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: You must login first.
+Enter transaction code: withdrawal
+You must login first.
 
 Please login to continue.
 
 Available transaction codes:
 login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
 
-Enter transaction code: [DEBUG] txn line length=41 expected=40 :: '00                      00000 00000.00   '
+Enter transaction code: exit
 ```
 
 The validation script compares this entire output exactly to the expected output including:
