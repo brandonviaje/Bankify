@@ -1,0 +1,22 @@
+
+Please login to continue.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: login
+Enter session type (standard/admin): Enter account holder name: Logged in as Brandon (standard)
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: deposit
+Enter account number to deposit into: 00001
+Enter amount to deposit: 200.00
+Deposit accepted for account 00001. (Funds available next session)
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.

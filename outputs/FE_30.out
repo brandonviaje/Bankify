@@ -1,0 +1,27 @@
+
+Please login to continue.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: login
+Enter session type (standard/admin): Logged in as ADMIN (admin)
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: disable
+Enter account holder name: WrongName
+Account holder not found.
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: 00001
+Invalid transaction code
+
+Available transaction codes:
+login, logout, deposit, transfer, withdrawal, paybill, create, delete, disable, changeplan, exit
+
+Enter transaction code: logout
+Logged out successfully. No transactions can be processed until login.
