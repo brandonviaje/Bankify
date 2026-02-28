@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# create the outputs directory if it doesn't exist
+# remove old outputs directory completely
+rm -rf outputs/
+
+# create the outputs directory again
 mkdir -p outputs
 
 # loop through every .txt file in the inputs folder
