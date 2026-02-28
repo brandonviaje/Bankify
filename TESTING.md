@@ -5,7 +5,6 @@
 To execute the full test suite, clear generated outputs directory, then run:
 
 ```bash
-rm -rf outputs/
 bash run_tests.sh
 ```
 
