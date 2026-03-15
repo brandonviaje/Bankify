@@ -15,6 +15,7 @@ Description:
 
 import sys
 from read import read_old_bank_accounts
+from transaction_parser import read_merged_transactions
 from write import write_new_current_accounts, write_new_master_accounts
 import backend_processor
 
@@ -25,6 +26,13 @@ def main():
         sys.exit(1)
     
     #Call function
+    backend_processor.fee_application(accounts)
+
+    #Read merged transaction file
+    transactions = read_merged_transactions("merged_transactions.atf")
+
+
+    #Apply fees
     backend_processor.fee_application(accounts)
 
     # 4. Outputs
