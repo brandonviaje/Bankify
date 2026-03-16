@@ -17,9 +17,8 @@ def log_constraint_error(description, context, fatal=False):
     Logs errors in the required format and exits if fatal.
     
     Args:
-        message: The main error message/type
-        description: Detailed error description
-        context: File name (if fatal) or constraint type (if non-fatal)
+        description: Detailed error description (e.g., "Account has a negative balance")
+        context: File name (if fatal) or the transaction string (if non-fatal)
         fatal: If True, treats as fatal error and exits program
     """
     if fatal:
