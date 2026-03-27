@@ -116,6 +116,8 @@ Full loop coverage achieved:
 
 ---
 
+# Statement Coverage Summary
+
 ## process_change_plan()
 
 | Decision Point     | Covered By |
