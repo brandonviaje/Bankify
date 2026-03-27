@@ -84,6 +84,73 @@ This ensures full loop coverage:
 | Create account (05)        | TC7        |
 | Invalid code (else)        | TC8        |
 
+
+## process_change_plan(accounts, acc_num, txn_context)
+
+- Coverage Type: Statement Coverage  
+- Purpose: Toggles the account plan between ‘SP’ (Student Plan) and ‘NP’ (Non-Student Plan).  
+- Structure:  
+  - Decision: Checks the current account plan.  
+  - If the plan is `'SP'`, it is changed to `'NP'`.  
+  - Otherwise, it is changed to `'SP'`.  
+  - No loop: This method operates on a single account at a time.
+
+---
+
+## Method Under Test (Statement Coverage)
+
+`process_change_plan(accounts, acc_num, txn_context)`
+
+This method updates the plan type of a given account by toggling between `'SP'` and `'NP'`.
+
+It includes:
+
+- 1 decision → based on current account plan  
+- no loops → executes once per function call  
+
+---
+
+# Test Case Table
+
+| TC# | Description                               | Input               | Expected Result | Coverage                         |
+|-----|-------------------------------------------|---------------------|----------------|----------------------------------|
+| TC1 | Change plan from SP to NP                 | plan = 'SP'         | plan = 'NP'    | Statement (if branch)            |
+| TC2 | Change plan from NP to SP                 | plan = 'NP'         | plan = 'SP'    | Statement (else branch)          |
+| TC3 | Change plan from invalid value to SP      | plan = 'XX'         | plan = 'SP'    | Edge case / else branch coverage |
+
+---
+
+# Statement Coverage Analysis
+
+The method contains a single decision:
+
+if current_plan == 'SP':
+→ set to 'NP'
+else:
+→ set to 'SP'
+
+
+Coverage is achieved by:
+
+- TC1 → executes the **if branch**  
+- TC2 → executes the **else branch**  
+- TC3 → reinforces else branch behavior with unexpected input  
+
+This ensures:
+
+- all statements are executed at least once  
+- full statement coverage is achieved  
+
+---
+
+# Decision Coverage Summary
+
+| Decision Point        | Covered By |
+|----------------------|------------|
+| Plan is 'SP'         | TC1        |
+| Plan is not 'SP'     | TC2, TC3   |
+
+
 ---
 # How to Run
 Navigate to the Backend directory: 
