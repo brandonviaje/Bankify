@@ -120,10 +120,12 @@ Full loop coverage achieved:
 
 ## process_change_plan()
 
-| Decision Point     | Covered By |
-| ------------------ | ---------- |
-| Plan is `'SP'`     | TC1        |
-| Plan is not `'SP'` | TC2, TC3   |
+| Statement / Decision Path     | Covered By |
+| ----------------------------- | ---------- |
+| Plan is `'SP'` (if branch)    | TC1        |
+| Plan is not `'SP'` (else)     | TC2, TC3   |
+| Assignment to `'NP'`          | TC1        |
+| Assignment to `'SP'`          | TC2, TC3   |
 
 # How to Run
 
