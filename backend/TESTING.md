@@ -157,7 +157,8 @@ Navigate to the Backend directory:
 cd bankend
 
 Run the pytest:
-Pytest -v
+```Pytest -v```
+```python -m pytest -v```
 
 ---
 
