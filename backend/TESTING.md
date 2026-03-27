@@ -1,6 +1,8 @@
-# Testing Report – process_transactions()
+# Testing Report
 
-## Method Under Test
+## Method Under Test (Statement Coverage)
+
+## Method Under Test (Decision + Loop Coverage)
 
 `process_transactions(accounts, transactions)`
 
@@ -13,20 +15,19 @@ It includes:
 
 ---
 
-# Test Case Design Table (Decision + Loop Coverage)
+# Test Case Table
 
-| TC   | Description                   | Input Transaction(s)                                                   | Expected Result                     | Coverage           |
-| ---- | ----------------------------- | ---------------------------------------------------------------------- | ----------------------------------- | ------------------ |
-| TC1  | Empty transaction list        | `[]`                                                                   | No changes to accounts              | Loop = 0           |
-| TC2  | Valid deposit (code 04)       | `[{'code':'04','account_number':'12345','amount':50}]`                 | Balance increases by 50             | Deposit branch     |
-| TC3  | Skip code "00"                | `[{'code':'00','account_number':'12345','amount':50}]`                 | Transaction ignored, no change      | Skip branch        |
-| TC4  | Invalid account number        | `[{'code':'04','account_number':'99999','amount':50}]`                 | Error logged, transaction skipped   | Account check fail |
-| TC5  | Valid withdrawal              | `[{'code':'01','account_number':'12345','amount':50}]`                 | Balance decreases by 50             | Withdrawal branch  |
-| TC6  | Withdrawal insufficient funds | `[{'code':'01','account_number':'12345','amount':200}]`                | No change to balance                | Insufficient funds |
-| TC7  | Create account (code 05)      | `[{'code':'05','account_number':'00000','amount':200,'name':'Alice'}]` | New account created                 | Create branch      |
-| TC8  | Invalid transaction code      | `[{'code':'99','account_number':'12345','amount':50}]`                 | Error logged, no changes            | Else branch        |
-| TC9  | Multiple transactions         | `[deposit, withdrawal]`                                                | All transactions processed in order | Loop > 1 iteration |
-| TC10 | Mixed valid + invalid cases   | `[valid txn, invalid account, invalid code]`                           | Valid processed, invalid skipped    | Full branch mix    |
+| TC# | Description                 | Input                        | Expected Result            | Coverage                |
+| --- | --------------------------- | ---------------------------- | -------------------------- | ----------------------- |
+| TC1 | Empty transaction list      | []                           | No changes                 | Loop = 0                |
+| TC2 | Single Deposit              | 1 txn (code='04', amount=50) | Balance increases          | Loop = 1                |
+| TC3 | Skip code '00'              | code='00'                    | No change                  | Decision (skip branch)  |
+| TC4 | Invalid account             | account='99999'              | Error logged, ignored      | Decision (false branch) |
+| TC5 | Valid withdrawal            | code='01', amount=50         | Balance decreases          | Decision (true branch)  |
+| TC6 | Insufficient withdrawal     | code='01', amount > balance  | No change                  | Decision (false branch) |
+| TC7 | Create new account          | code='05', new account       | Account created            | Branch coverage         |
+| TC8 | Invalid transaction code    | code='99'                    | Ignored                    | Default/else branch     |
+| TC9 | Multiple mixed transactions | deposit + withdrawal combo   | Sequential correct updates | Loop + integration      |
 
 ---
 
