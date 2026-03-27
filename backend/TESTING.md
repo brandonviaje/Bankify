@@ -1,5 +1,28 @@
 # Testing Report
 
+
+# Methods Tested
+## process_transactions(accounts, transactions)
+
+- Coverage Type: Decision and loop coverage
+- Purpose: Iterates through all transactions and routes each to the correct handler function.
+- Structure:
+  - Loop: Iterates over every transaction in the list.
+  - Decisions: Multiple if/elif/else statements determine the type of transaction, check account existence, and handle invalid codes.
+  - Nested Decisions: Checks like if code != '05' and acc_num not in accounts and if code == '00': continue add complexity.
+
+---
+## process_changeplan(session_type, current_user)
+
+- Coverage Type: Statement Coverage
+- Purpose: Toggles the account plan between ‘SP’ (Student) and ‘MP’ (Non-Student)
+- Structure:
+  - Decision: Checks the current account plan:
+  - If 'SP', changes it to 'NP'.
+  - Else, changes it to 'SP'.
+  - No loop: This method handles a single account at a time.
+
+
 ## Method Under Test (Statement Coverage)
 
 ## Method Under Test (Decision + Loop Coverage)
@@ -12,6 +35,8 @@ It includes:
 
 - 1 loop → iterates through `transactions`
 - multiple decision branches → based on transaction codes and account validation
+
+
 
 ---
 
@@ -58,30 +83,6 @@ This ensures full loop coverage:
 | Insufficient funds         | TC6        |
 | Create account (05)        | TC7        |
 | Invalid code (else)        | TC8        |
-
----
-
-
-# Methods Tested
-## process_transactions
-
-- Coverage Type: Decision and loop coverage
-- Purpose: Iterates through all transactions and routes each to the correct handler function.
-- Structure:
-  - Loop: Iterates over every transaction in the list.
-  - Decisions: Multiple if/elif/else statements determine the type of transaction, check account existence, and handle invalid codes.
-  - Nested Decisions: Checks like if code != '05' and acc_num not in accounts and if code == '00': continue add complexity.
-
----
-## process_change_plan
-
-- Coverage Type: Statement Coverage
-- Purpose: Toggles the account plan between ‘SP’ (Student) and ‘MP’ (Non-Student)
-- Structure:
-  - Decision: Checks the current account plan:
-  - If 'SP', changes it to 'NP'.
-  - Else, changes it to 'SP'.
-  - No loop: This method handles a single account at a time.
 
 ---
 # How to Run
