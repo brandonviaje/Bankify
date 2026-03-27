@@ -1,7 +1,6 @@
 # import the function under test from the backend processor module
 from backend_processor import process_change_plan
 
-
 # helper function to create a sample account dictionary
 def create_account(plan):
     return {
