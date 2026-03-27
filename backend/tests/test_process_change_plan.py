@@ -14,7 +14,6 @@ def create_account(plan):
         }
     }
 
-
 # Test Case 1:
 # verifies that an account with a Student Plan (SP)
 # is correctly changed to a Non-Student Plan (NP)
