@@ -37,6 +37,26 @@
    ```
 
 ---
+## Backend
+The backend of Bankify is a batch processor that reads the previous day's master bank account file and a merged transaction file, applies all transactions in order, logs constraint violations, and generates:
+
+- A new master bank accounts file 
+- A new current bank accounts file for the next day’s frontend runs
+—
+## Features 
+Process merged transactions from the frontend
+Prevents invalid states such as negative balances 
+Updates account balances, status, and transaction counts
+Supports:
+  - withdrawal and deposit  
+  - create, delete, transfer, and disable 
+  - transfer
+  - paybill
+  - changeplan
+
+- Applies daily transaction fees:
+	- **Student Plan:** $0.05 per transaction
+   - **Non-Student Plan:** $0.10 per transaction
 
 ---
 
