@@ -158,7 +158,7 @@ cd bankend
 
 Run the pytest:
 ```Pytest -v```
-```python -m pytest -v```
+if that does not work run: ```python -m pytest -v```
 
 ---
 
