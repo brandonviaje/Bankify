@@ -1,58 +1,84 @@
 # Testing Report
 
-
 # Methods Tested
-## process_transactions(accounts, transactions)
-
-- Coverage Type: Decision and loop coverage
-- Purpose: Iterates through all transactions and routes each to the correct handler function.
-- Structure:
-  - Loop: Iterates over every transaction in the list.
-  - Decisions: Multiple if/elif/else statements determine the type of transaction, check account existence, and handle invalid codes.
-  - Nested Decisions: Checks like if code != '05' and acc_num not in accounts and if code == '00': continue add complexity.
-
----
-## process_changeplan(session_type, current_user)
-
-- Coverage Type: Statement Coverage
-- Purpose: Toggles the account plan between ‘SP’ (Student) and ‘MP’ (Non-Student)
-- Structure:
-  - Decision: Checks the current account plan:
-  - If 'SP', changes it to 'NP'.
-  - Else, changes it to 'SP'.
-  - No loop: This method handles a single account at a time.
-
-
-## Method Under Test (Statement Coverage)
-
-## Method Under Test (Decision + Loop Coverage)
-
-`process_transactions(accounts, transactions)`
-
-This method processes a list of financial transactions using a loop and multiple decision branches based on transaction codes.
-
-It includes:
-
-- 1 loop → iterates through `transactions`
-- multiple decision branches → based on transaction codes and account validation
-
-
 
 ---
 
-# Test Case Table
+## **process_transactions(accounts, transactions)**
 
-| TC# | Description                 | Input                        | Expected Result            | Coverage                |
-| --- | --------------------------- | ---------------------------- | -------------------------- | ----------------------- |
-| TC1 | Empty transaction list      | []                           | No changes                 | Loop = 0                |
-| TC2 | Single Deposit              | 1 txn (code='04', amount=50) | Balance increases          | Loop = 1                |
-| TC3 | Skip code '00'              | code='00'                    | No change                  | Decision (skip branch)  |
-| TC4 | Invalid account             | account='99999'              | Error logged, ignored      | Decision (false branch) |
-| TC5 | Valid withdrawal            | code='01', amount=50         | Balance decreases          | Decision (true branch)  |
-| TC6 | Insufficient withdrawal     | code='01', amount > balance  | No change                  | Decision (false branch) |
-| TC7 | Create new account          | code='05', new account       | Account created            | Branch coverage         |
-| TC8 | Invalid transaction code    | code='99'                    | Ignored                    | Default/else branch     |
-| TC9 | Multiple mixed transactions | deposit + withdrawal combo   | Sequential correct updates | Loop + integration      |
+### Coverage Type
+
+- Decision Coverage
+- Loop Coverage
+
+### Purpose
+
+Iterates through all transactions and routes each one to the correct handler function based on transaction codes and account validation.
+
+### Structure
+
+- **Loop**
+  - Iterates over each transaction in `transactions`
+- **Decision Logic**
+  - Uses `if / elif / else` to determine transaction type
+  - Validates account existence
+  - Handles invalid transaction codes
+- **Nested Conditions**
+  - Includes checks such as:
+    - invalid account handling
+    - skip transactions (`code == '00'`)
+    - account creation (`code == '05'`)
+
+---
+
+## **process_change_plan(accounts, acc_num, txn_context)**
+
+### Coverage Type
+
+- Statement Coverage
+
+### Purpose
+
+Toggles an account plan between:
+
+- `'SP'` (Student Plan)
+- `'NP'` (Non-Student Plan)
+
+### Structure
+
+- **Decision Only (No Loop)**
+  - If plan is `'SP'` → change to `'NP'`
+  - Else → change to `'SP'`
+
+---
+
+# Test Case Tables
+
+---
+
+## **process_transactions() Test Cases**
+
+| TC# | Description              | Input                       | Expected Result            | Coverage Type      |
+| --- | ------------------------ | --------------------------- | -------------------------- | ------------------ |
+| TC1 | Empty transaction list   | `[]`                        | No changes                 | Loop = 0           |
+| TC2 | Single deposit           | code='04', amount=50        | Balance increases          | Loop = 1           |
+| TC3 | Skip transaction         | code='00'                   | No change                  | Skip branch        |
+| TC4 | Invalid account          | account='99999'             | Error logged, ignored      | False branch       |
+| TC5 | Valid withdrawal         | code='01', amount=50        | Balance decreases          | True branch        |
+| TC6 | Insufficient funds       | code='01', amount > balance | No change                  | Condition failure  |
+| TC7 | Create new account       | code='05'                   | Account created            | Branch coverage    |
+| TC8 | Invalid transaction code | code='99'                   | Ignored                    | Else branch        |
+| TC9 | Multiple transactions    | mixed operations            | Sequential correct updates | Loop + integration |
+
+---
+
+## **process_change_plan() Test Cases**
+
+| TC# | Description                   | Input     | Expected Result | Coverage Type           |
+| --- | ----------------------------- | --------- | --------------- | ----------------------- |
+| TC1 | Change SP → NP                | plan='SP' | plan='NP'       | If branch               |
+| TC2 | Change NP → SP                | plan='NP' | plan='SP'       | Else branch             |
+| TC3 | Invalid/unknown plan fallback | plan='XX' | plan='SP'       | Edge case (else branch) |
 
 ---
 
@@ -60,113 +86,46 @@ It includes:
 
 The loop `for txn in transactions:` is tested using:
 
-- TC1 → 0 iterations (empty list)
-- TC2 → 1 iteration (single transaction)
-- TC9 / TC10 → multiple iterations
+- **TC1** → 0 iterations (empty list)
+- **TC2** → 1 iteration (single transaction)
+- **TC9** → multiple iterations (mixed transactions)
 
-This ensures full loop coverage:
+### Result
 
-- loop not executed
-- loop executed once
-- loop executed multiple times
+Full loop coverage achieved:
 
----
-
-# Decision Coverage Summary
-
-| Decision Point             | Covered By |
-| -------------------------- | ---------- |
-| Skip code "00"             | TC3        |
-| Account exists check fails | TC4        |
-| Deposit (04)               | TC2        |
-| Withdrawal (01)            | TC5        |
-| Insufficient funds         | TC6        |
-| Create account (05)        | TC7        |
-| Invalid code (else)        | TC8        |
-
-
-## process_change_plan(accounts, acc_num, txn_context)
-
-- Coverage Type: Statement Coverage  
-- Purpose: Toggles the account plan between ‘SP’ (Student Plan) and ‘NP’ (Non-Student Plan).  
-- Structure:  
-  - Decision: Checks the current account plan.  
-  - If the plan is `'SP'`, it is changed to `'NP'`.  
-  - Otherwise, it is changed to `'SP'`.  
-  - No loop: This method operates on a single account at a time.
-
----
-
-## Method Under Test (Statement Coverage)
-
-`process_change_plan(accounts, acc_num, txn_context)`
-
-This method updates the plan type of a given account by toggling between `'SP'` and `'NP'`.
-
-It includes:
-
-- 1 decision → based on current account plan  
-- no loops → executes once per function call  
-
----
-
-# Test Case Table
-
-| TC# | Description                               | Input               | Expected Result | Coverage                         |
-|-----|-------------------------------------------|---------------------|----------------|----------------------------------|
-| TC1 | Change plan from SP to NP                 | plan = 'SP'         | plan = 'NP'    | Statement (if branch)            |
-| TC2 | Change plan from NP to SP                 | plan = 'NP'         | plan = 'SP'    | Statement (else branch)          |
-| TC3 | Change plan from invalid value to SP      | plan = 'XX'         | plan = 'SP'    | Edge case / else branch coverage |
-
----
-
-# Statement Coverage Analysis
-
-The method contains a single decision:
-
-if current_plan == 'SP':
-→ set to 'NP'
-else:
-→ set to 'SP'
-
-
-Coverage is achieved by:
-
-- TC1 → executes the **if branch**  
-- TC2 → executes the **else branch**  
-- TC3 → reinforces else branch behavior with unexpected input  
-
-This ensures:
-
-- all statements are executed at least once  
-- full statement coverage is achieved  
+- Loop not executed
+- Loop executed once
+- Loop executed multiple times
 
 ---
 
 # Decision Coverage Summary
+
+## process_transactions()
 
 | Decision Point        | Covered By |
-|----------------------|------------|
-| Plan is 'SP'         | TC1        |
-| Plan is not 'SP'     | TC2, TC3   |
-
+| --------------------- | ---------- |
+| Skip code `"00"`      | TC3        |
+| Invalid account       | TC4        |
+| Deposit (`04`)        | TC2        |
+| Withdrawal (`01`)     | TC5        |
+| Insufficient funds    | TC6        |
+| Create account (`05`) | TC7        |
+| Invalid code (else)   | TC8        |
 
 ---
+
+## process_change_plan()
+
+| Decision Point     | Covered By |
+| ------------------ | ---------- |
+| Plan is `'SP'`     | TC1        |
+| Plan is not `'SP'` | TC2, TC3   |
+
 # How to Run
-Navigate to the Backend directory: 
-cd bankend
 
-Run the pytest:
-```Pytest -v```
-if that does not work run: ```python -m pytest -v```
-
----
-
-# Summary
-
-This test suite achieves:
-
-- Statement coverage (all lines executed)
-- Decision coverage (all branches exercised)
-- Loop coverage (0, 1, and multiple iterations)
-- Error handling validation (invalid account and invalid code cases)
+```bash
+cd backend
+python -m pytest -v
+```
