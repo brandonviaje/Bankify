@@ -39,3 +39,10 @@ def test_change_plan_np_to_sp():
     
     # plan should toggle to SP
     assert updated["12345"]["plan"] == "SP"
+
+# Test Case 3:
+# verifies that any non "SP" value is changed to "SP"
+def test_change_plan_other_value_to_sp():
+    accounts = create_account("XX")
+    updated = process_change_plan(accounts, "12345", "test_txn")
+    assert updated["12345"]["plan"] == "SP"
