@@ -1,3 +1,18 @@
+"""
+Test Suite: process_transactions
+Author: Brandon Viaje and Jason Mong
+This module contains unit tests for the `process_transactions` function,
+which is responsible for handling multiple transaction types and updating
+account states accordingly.
+
+Purpose:
+- Validate correct processing of transaction codes
+- Ensure proper handling of valid and invalid operations
+- Verify account balances and states are updated correctly
+
+Dependencies:
+- process_transactions function from backend_processor
+"""
 import sys
 import os
 import pytest

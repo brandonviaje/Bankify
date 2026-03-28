@@ -1,3 +1,15 @@
+"""
+Test Suite: process_change_plan
+Author: Moksh Patel and Richard Wu
+This module contains unit tests for the `process_change_plan` function,
+which handles transaction code 08 (Change Plan).
+
+Purpose:
+- Verify correct toggling between Student Plan (SP) and Non-Student Plan (NP)
+- Ensure account data is updated accurately after processing a change plan transaction
+
+"""
+
 from backend_processor import process_change_plan
 # helper function to create a sample account dictionary
 def create_account(plan):
