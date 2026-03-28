@@ -181,3 +181,120 @@ def test_multiple_transactions():
     result = process_transactions(accounts, transactions)
     assert result['12345']['balance'] == 120
     
+
+"""
+TC10: Test transfer transaction (code 02).
+
+Expectation:
+- Amount should be transferred from source to destination account
+"""
+def test_transfer():
+    accounts = create_account()
+    
+    # add destination account
+    accounts['67890'] = {
+        'account_number': '67890',
+        'name': 'Jane',
+        'status': 'A',
+        'balance': 100,
+        'total_transactions': 0,
+        'plan': 'NP'
+    }
+    
+    transactions = [{
+        'code': '02',
+        'account_number': '12345',
+        'amount': 50,
+        'name': '',
+        'misc': '67890'
+    }]
+
+    result = process_transactions(accounts, transactions)
+
+    assert result['12345']['balance'] == 50
+    assert result['67890']['balance'] == 150
+
+
+"""
+TC11: Test paybill transaction (code 03).
+
+Expectation:
+- Balance should decrease by bill amount
+"""
+def test_paybill():
+    accounts = create_account()
+
+    transactions = [{
+        'code': '03',
+        'account_number': '12345',
+        'amount': 40,
+        'name': '',
+        'misc': ''
+    }]
+
+    result = process_transactions(accounts, transactions)
+    assert result['12345']['balance'] == 60
+
+
+"""
+TC12: Test delete account transaction (code 06).
+
+Expectation:
+- Account should be removed from system
+"""
+def test_delete_account():
+    accounts = create_account()
+
+    transactions = [{
+        'code': '06',
+        'account_number': '12345',
+        'amount': 0,
+        'name': 'John',
+        'misc': ''
+    }]
+
+    result = process_transactions(accounts, transactions)
+    assert '12345' not in result
+
+
+"""
+TC13: Test disable account transaction (code 07).
+
+Expectation:
+- Account status should change (e.g., to 'D')
+"""
+def test_disable_account():
+    accounts = create_account()
+
+    transactions = [{
+        'code': '07',
+        'account_number': '12345',
+        'amount': 0,
+        'name': '',
+        'misc': ''
+    }]
+
+    result = process_transactions(accounts, transactions)
+    assert result['12345']['status'] == 'D'
+
+
+"""
+TC14: Test change plan transaction (code 08).
+
+Expectation:
+- Account plan should be updated
+"""
+def test_change_plan():
+    accounts = create_account()
+
+    transactions = [{
+        'code': '08',
+        'account_number': '12345',
+        'amount': 0,
+        'name': '',
+        'misc': ''
+    }]
+
+    result = process_transactions(accounts, transactions)
+    
+    assert result['12345']['plan'] != 'NP'
