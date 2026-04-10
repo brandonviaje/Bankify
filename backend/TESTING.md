@@ -151,6 +151,43 @@ The test suite achieves:
 All control flow paths, including edge cases and invalid inputs, are exercised. This satisfies the requirements for comprehensive **white-box testing**.
 
 ---
+## Failures Identified and Fixes
+
+During initial testing, several test cases failed prior to implementing corrections. The identified issues and corresponding fixes are summarized below:
+
+---
+
+### **TC4 — Invalid Account Test**
+- **Issue:**  
+  The system did not properly log an error when a transaction referenced a nonexistent account.
+- **Fix:**  
+  Added an explicit account existence check and integrated `log_constraint_error()` before continuing execution.
+
+---
+
+### **TC8 — Invalid Transaction Code**
+- **Issue:**  
+  Invalid transaction codes were not handled, resulting in undefined behavior.
+- **Fix:**  
+  Implemented an additional conditional branch to catch invalid codes and log appropriate errors.
+
+---
+
+### **TC9 — Mixed Transactions**
+- **Issue:**  
+  Back-to-back transactions were not processed correctly due to improper state updates.
+- **Fix:**  
+  Ensured account updates are applied immediately within each loop iteration.
+
+---
+
+### **TC10 — Transfer Transaction**
+- **Issue:**  
+  The destination account balance was not updated correctly during transfer operations.
+- **Fix:**  
+  Updated transfer logic to ensure both source and destination accounts are modified within the same transaction.
+
+---
 
 # How to Run
 
