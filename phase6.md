@@ -84,6 +84,6 @@ This prevents noise in the repository when you or teammates run the scripts loca
 - Create your own sessions: Session files live in the `inputs/` directory. Each file contains the commands a user would enter during an ATM session. To test new behaviours, add new files there and include them in the daily or weekly script arguments.
 - Resetting account state: The starting files `bank_accounts.txt` and `backend/old_master_accounts.txt` represent day‑zero accounts. If you need to rerun the scripts from scratch, restore these files to their original versions.
 
-##Summary
+## Summary
 
 Phase 6 brings together the front‑end ATM interface and the back‑end batch processor. By automating session processing (`daily.sh`) and simulating consecutive days (`weekly.sh`), we can verify that all transaction types are handled correctly and that the system maintains consistent state across days. The scripts also make it easy to test additional scenarios simply by adding session files and adjusting the weekly schedule.
